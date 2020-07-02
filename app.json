@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "yaspeez",
+    "slug": "yaspeez",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#0d4ae8"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fourthape.yaspeez"
+    },
+    "android": {
+      "package": "com.fourthape.yaspeez",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBfOoepeCkSMD4KaoTWpztxgVPwae3G4gk"
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
