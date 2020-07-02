@@ -2,15 +2,17 @@ import React from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 // import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
-import DashScreen from '../screens/dashboard';
 import AdScreen from '../screens/ads';
 import LoginScreen from '../screens/auth/Login';
 import RegisterScreen from '../screens/auth/Register';
+import OtherRegisterScreen from '../screens/dashboard/OtherRegister';
+import MapScreen from '../screens/dashboard/Map';
 
 // const defaultHeaderStyle = {elevation: 0, shadowOpacity: 0, height: 110, borderBottomLeftRadius: 25, borderBottomRightRadius: 25}
 
-const AppNavigator = createStackNavigator({
-    Maps: DashScreen
+const AppNavigator = createSwitchNavigator({
+    Other: OtherRegisterScreen,
+    Dash: MapScreen
 }, {
     headerMode: "none"
 });
@@ -33,7 +35,7 @@ const RootNavigator = createSwitchNavigator({
     Auth: AuthNavigator,
     App: AppNavigator
 }, {
-    initialRouteName: 'Ads',
+    initialRouteName: 'App',
     lazy: false
 });
 
