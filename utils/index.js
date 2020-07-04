@@ -1,1 +1,1 @@
-export const gotoDash = navigation => navigation.navigate('App');
+export const changeKey = data => data.map(info => ({key: info.id.toString(), label: info.text}));

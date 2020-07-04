@@ -4,25 +4,8 @@ import { View, StyleSheet, TextInput, TouchableOpacity, Text } from 'react-nativ
 import ModalFilterPicker from 'react-native-modal-filter-picker';
 import { StatusBar } from 'expo-status-bar';
 
-const countries = [
-    {key: 1, label: 'India'},
-    {key: 2, label: 'America'},
-    {key: 3, label: 'Canada'},
-    {key: 4, label: 'France'},
-];
-
-const cities = [
-    {key: 1, label: 'Chennai'},
-    {key: 2, label: 'Mumbai'},
-    {key: 3, label: 'Cuddalore'},
-    {key: 4, label: 'Puducherry'},
-];
-
-const roles = [
-    {key: 1, label: 'Coach'},
-    {key: 2, label: 'Organization'},
-    {key: 3, label: 'User'}
-];
+import Api from '../../utils/Api';
+import { changeKey } from '../../utils';
 
 const sports = [
     {key: 1, label: 'Basket Ball'},
@@ -36,7 +19,7 @@ const sports = [
 
 // create a component
 class OtherRegisterScreen extends Component {
-    state = {selectedCountry: null, selectedCity: null, selectedRole: null, selectedSport: null, options: countries, visible: false, cSelect: 'selectedCity'};
+    state = {selectedCountry: null, selectedCity: null, selectedRole: null, selectedSport: null, options: [], visible: false, cSelect: 'selectedCity', roles: [], countries: [], cities: []};
 
     gotoDash = () => {
         const {navigation} = this.props;
@@ -47,16 +30,29 @@ class OtherRegisterScreen extends Component {
         this.setState({options, cSelect, visible: true});
     }
 
-    onSelect = (_item, _name) => {
-        this.setState({[`${_name}`]: _item, visible: false}, () => console.log(this.state[`${_name}`]));
+    onSelect = async (_item, _name) => {
+        let {cities} = this.state;
+        if(_name === 'selectedCountry')
+            cities = await Api.get(`cities?id=${_item.key}`).then(res => changeKey(res.data));
+        this.setState({[`${_name}`]: _item, visible: false, cities});
     }
 
     onCancel = () => {
         this.setState({visible: false});
     }
+
+    init = async () => {
+        let roles = await Api.get('organization').then(res => changeKey(res.data));
+        let countries = await Api.get('countries').then(res => changeKey(res.data));
+        this.setState({roles, countries});
+    }
+
+    async componentDidMount() {
+        await this.init();
+    }
     
     render() {
-        const {selectedCountry, selectedCity, selectedRole, selectedSport, options, visible, cSelect} = this.state;
+        const {selectedCountry, selectedCity, selectedRole, selectedSport, options, visible, cSelect, countries, roles, cities} = this.state;
         return (
             <View style={styles.container}>
                 <StatusBar style='light' />
@@ -81,7 +77,7 @@ class OtherRegisterScreen extends Component {
                     <TouchableOpacity style={[styles.inputStyle, styles.left]} onPress={() => this.handlePress(countries, 'selectedCountry')}>
                         <TextInput style={{color: '#000', fontSize: 18}} placeholder="Countries" editable={false} value={selectedCountry && selectedCountry.label} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.inputStyle, styles.right]} onPress={() => this.handlePress(cities, 'selectedCity')}>
+                    <TouchableOpacity style={[styles.inputStyle, styles.right]} onPress={() => cities && cities.length > 0 ? this.handlePress(cities, 'selectedCity') : console.log('do nothing')}>
                         <TextInput style={{color: '#000', fontSize: 18}} placeholder="Cities" editable={false} value={selectedCity && selectedCity.label} />
                     </TouchableOpacity>
                 </View>
@@ -104,7 +100,7 @@ class OtherRegisterScreen extends Component {
                 </View>
                 <ModalFilterPicker
                     visible={visible}
-                    onSelect={(_item) => this.onSelect(_item, cSelect)}
+                    onSelect={async (_item) => await this.onSelect(_item, cSelect)}
                     onCancel={this.onCancel}
                     options={options}
                 />
