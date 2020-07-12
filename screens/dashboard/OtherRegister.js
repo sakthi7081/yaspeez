@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { View, StyleSheet, TextInput, TouchableOpacity, Text, Dimensions, ScrollView } from 'react-native';
 import ModalFilterPicker from 'react-native-modal-filter-picker';
 import SimpleReactValidator from 'simple-react-validator';
+import AsyncStorage from '@react-native-community/async-storage';
 import { StatusBar } from 'expo-status-bar';
 
 import Api from '../../utils/api';
@@ -14,10 +15,42 @@ const {width} = Dimensions.get('window');
 class OtherRegisterScreen extends Component {
     state = {selectedCountry: null, selectedCity: null, selectedRole: null, selectedSport: null, options: [], visible: false, cSelect: 'selectedCity', roles: [], countries: [], cities: [], sports: [], fname: '', lname: '', dob: '', pob: '', phone: '', address: '', email: '', pincode: '', referral: ''};
 
-    gotoDash = () => {
+    gotoDash = async () => {
         const {navigation} = this.props;
+        const {selectedCity, selectedRole, fname, lname, dob, pob, pincode, address, phone, referral} = this.state;
+        const userId = await AsyncStorage.get('userID');
+        const userEmail = await AsyncStorage.get('userEmail');
         if (this.validator.allValid()) {
-          navigation.navigate('Dash');
+          await Api.post('custom/userreg', {
+              "ID":userId,
+              "FIRSTNAME":fname,
+              "LASTNAME":lname,
+              "DOB":dob,
+              "AGE":"",
+              "GENDER":"",
+              "EMAIL":userEmail,
+              "PHONENUMBER":phone,
+              "PLACEOFBIRTH":pob,
+              "ADDRESS":address,
+              "YCITY_ID":selectedCity,
+              "PINCODE":pincode,
+              "YROLE_ID":selectedRole,
+              "FEEAMOUNT":"",
+              "PAIDCONTRIBUTION":"",
+              "MEDICALCERT":"",
+              "ISMEMBER":"",
+              "ORIGIN":"",
+              "DISCIPLINES":true,
+              "REFERRALBY":referral
+            }).then(res => {
+              const {data} = res.data;
+              if(isJson(data)){
+                const {msg, id} = data;
+                AsyncStorage.setItem('userID', id);
+                AsyncStorage.setItem('userEmail', email);
+                navigation.navigate('Dash');
+              }
+            });
         } else {
           this.validator.showMessages();
           this.forceUpdate();

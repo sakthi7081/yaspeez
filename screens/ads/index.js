@@ -24,15 +24,19 @@ class AdScreen extends Component {
 
     handlePress = () => {
         const {navigation} = this.props;
-        navigation.navigate('Auth');
+        const userId = await AsyncStorage.get('userID');
+        navigation.navigate((userId !== '' || userId !== null || userId !== undefined) ? 'App' : 'Auth');
     }
 
     async componentDidMount() {
         const {navigation} = this.props;
         try {
             let isFistTime = await AsyncStorage.getItem('isFirstTime');
+            const userId = await AsyncStorage.get('userID');
             this.setState({isFirstTime: isFistTime === '1'});
-            if(isFistTime === '1')
+            if(userId !== '' || userId !== null || userId !== undefined)
+              navigation.navigate('App');
+            else if(isFistTime === '1')
               navigation.navigate('Auth');
         } catch {
             console.log('do nothing');

@@ -3,9 +3,12 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import SimpleReactValidator from 'simple-react-validator';
+import AsyncStorage from '@react-native-community/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import SocialLogin from '../../components/ScocialLogin';
 import AuthForm from '../../components/AuthForm';
+
+import {isJson} from '../../utils';
 
 const {width} = Dimensions.get('window');
 
@@ -18,10 +21,40 @@ class RegisterScreen extends Component {
         navigation.navigate('Login');
     }
 
-    gotoDash = () => {
+    gotoDash = async () => {
         const {navigation} = this.props;
+        const {email} = this.state;
         if (this.validator.allValid()) {
-          navigation.navigate('App');
+          await Api.post('custom/userreg', {
+              "ID":"0",
+              "FIRSTNAME":"",
+              "LASTNAME":"",
+              "DOB":"",
+              "AGE":"",
+              "GENDER":"",
+              "EMAIL":email,
+              "PHONENUMBER":"",
+              "PLACEOFBIRTH":"",
+              "ADDRESS":"",
+              "YCITY_ID":"",
+              "PINCODE":"",
+              "YROLE_ID":"5",
+              "FEEAMOUNT":"",
+              "PAIDCONTRIBUTION":"",
+              "MEDICALCERT":"",
+              "ISMEMBER":"",
+              "ORIGIN":"",
+              "DISCIPLINES":"",
+              "REFERRALBY":""
+            }).then(res => {
+              const {data} = res.data;
+              if(isJson(data)){
+                const {msg, id} = data;
+                AsyncStorage.setItem('userID', id);
+                AsyncStorage.setItem('userEmail', email);
+                navigation.navigate('App');
+              }
+            });
         } else {
           this.validator.showMessages();
           this.forceUpdate();
