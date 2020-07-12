@@ -46,8 +46,7 @@ class OtherRegisterScreen extends Component {
               const {data} = res.data;
               if(isJson(data)){
                 const {msg, id} = data;
-                AsyncStorage.setItem('userID', id);
-                AsyncStorage.setItem('userEmail', email);
+                AsyncStorage.setItem('isProfileUpdated', '1');
                 navigation.navigate('Dash');
               }
             });
@@ -74,8 +73,11 @@ class OtherRegisterScreen extends Component {
 
     init = async () => {
         const userId = await AsyncStorage.get('userID');
+        const isProfileUpdated = await AsyncStorage.get('isProfileUpdated');
         const {navigation} = this.props;
-        if(userId === null || userId === undefined || userId === '')
+        if(isProfileUpdated === '1')
+          navigation.navigate('Dash');
+        else if(userId === null || userId === undefined || userId === '')
           navigation.navigate('Auth');
         else{
           let roles = await Api.get('yusers/organization').then(res => changeKey(res.data));
