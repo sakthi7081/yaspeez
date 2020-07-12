@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import SimpleReactValidator from 'simple-react-validator';
 import SocialLogin from '../../components/ScocialLogin';
 import AuthForm from '../../components/AuthForm';
 
@@ -18,7 +19,12 @@ class LoginScreen extends Component {
 
     gotoDash = () => {
         const {navigation} = this.props;
-        navigation.navigate('App');
+        if (this.validator.allValid()) {
+          navigation.navigate('App');
+        } else {
+          this.validator.showMessages();
+          this.forceUpdate();
+        }
     }
 
     onChangeText = (name, text) => this.setState({[`${name}`]: text});

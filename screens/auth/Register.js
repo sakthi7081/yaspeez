@@ -130,7 +130,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-end',
         paddingBottom: 30,
-    }, error: {
+    },
+    error: {
       color: '#ff0000',
       fontWeight: 'bold',
       fontSize: 12
