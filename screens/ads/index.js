@@ -22,7 +22,7 @@ class AdScreen extends Component {
 
     onScroll = (stage, bgColor) => this.setState({stage, bgColor})
 
-    handlePress = () => {
+    handlePress = async () => {
         const {navigation} = this.props;
         const userId = await AsyncStorage.get('userID');
         navigation.navigate((userId !== '' || userId !== null || userId !== undefined) ? 'App' : 'Auth');
