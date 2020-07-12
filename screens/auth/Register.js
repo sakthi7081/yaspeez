@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
+import SimpleReactValidator from 'simple-react-validator';
 import { StatusBar } from 'expo-status-bar';
 import SocialLogin from '../../components/ScocialLogin';
 import AuthForm from '../../components/AuthForm';
@@ -10,6 +11,8 @@ const {width} = Dimensions.get('window');
 
 // create a component
 class RegisterScreen extends Component {
+    state = {email: '', origin: '', utilize: false, nouveau: false};
+
     gotoLogin = () => {
         const {navigation} = this.props;
         navigation.navigate('Login');
@@ -17,11 +20,24 @@ class RegisterScreen extends Component {
 
     gotoDash = () => {
         const {navigation} = this.props;
-        navigation.navigate('App');
+        if (this.validator.allValid()) {
+          navigation.navigate('App');
+        } else {
+          this.validator.showMessages();
+          this.forceUpdate();
+        }
+    }
+
+    onChangeText = (name, text) => this.setState({[`${name}`]: text});
+
+    constructor(props) {
+      super(props);
+      this.validator = new SimpleReactValidator({autoForceUpdate: this});
     }
 
     render() {
         const {gotoDash} = this.props;
+        const {email, origin, utilize, nouveau} = this.state;
 
         return (
             <View style={styles.containerWrap}>
@@ -30,15 +46,17 @@ class RegisterScreen extends Component {
                     <SocialLogin />
                     <Text style={styles.ou}>Ou</Text>
                     <View>
-                        <AuthForm />
+                        <AuthForm onChangeText={this.onChangeText} validator={this.validator} email={email} />
                         <View style={styles.acceptViews}>
-                            <CheckBox disabled={false} value={false} tintColors={{true: '#fff', false: '#fff'}} />
+                            <CheckBox onValueChange={() => this.onChangeText('utilize', !utilize)} disabled={false} value={utilize} tintColors={{true: '#fff', false: '#fff'}} />
                             <Text style={styles.acceptViewsText}>J'accept les conditions d'utilisation de Yaspeez</Text>
                         </View>
+                        <Text style={styles.error}>{this.validator.message('utilize', utilize, 'required|accepted')}</Text>
                         <View style={[styles.acceptViews, {marginTop: 0}]}>
-                            <CheckBox disabled={false} value={false} tintColors={{true: '#fff', false: '#fff'}} />
+                            <CheckBox onValueChange={() => this.onChangeText('nouveau', !nouveau)} disabled={false} value={nouveau} tintColors={{true: '#fff', false: '#fff'}} />
                             <Text style={styles.acceptViewsText}>Je souhaite recevoir les nouveautes Yazpeez</Text>
                         </View>
+                        <Text style={styles.error}>{this.validator.message('nouveau', nouveau, 'required|accepted')}</Text>
                     </View>
                     <TouchableOpacity style={styles.submitBtn} onPress={this.gotoDash}>
                         <Text style={styles.submitBtnTxt}>Creer un compte</Text>
@@ -112,6 +130,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-end',
         paddingBottom: 30,
+    }, error: {
+      color: '#ff0000',
+      fontWeight: 'bold',
+      fontSize: 12
     }
 });
 

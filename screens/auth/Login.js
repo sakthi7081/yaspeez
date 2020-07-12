@@ -9,6 +9,8 @@ const {width} = Dimensions.get('window');
 
 // create a component
 class LoginScreen extends Component {
+    state = {email: '', origin: ''};
+
     gotoRegister = () => {
         const {navigation} = this.props;
         navigation.navigate('Register');
@@ -19,7 +21,15 @@ class LoginScreen extends Component {
         navigation.navigate('App');
     }
 
+    onChangeText = (name, text) => this.setState({[`${name}`]: text});
+
+    constructor(props) {
+      super(props);
+      this.validator = new SimpleReactValidator({autoForceUpdate: this});
+    }
+
     render() {
+        const {email, origin} = this.state;
 
         return (
             <View style={styles.containerWrap}>
@@ -28,7 +38,7 @@ class LoginScreen extends Component {
                     <SocialLogin />
                     <Text style={styles.ou}>Ou</Text>
                     <View>
-                        <AuthForm />
+                        <AuthForm onChangeText={this.onChangeText} validator={this.validator} email={email} />
                         <Text style={styles.faq}>Mot de passe oublie?</Text>
                     </View>
                     <TouchableOpacity style={styles.submitBtn} onPress={this.gotoDash}>

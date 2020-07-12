@@ -12,7 +12,7 @@ const screenHeight = Math.round(Dimensions.get('window').height - 90);
 const scrollItems = [
     {adId: 1, img: require('../../assets/images/ads/SCROLL1.png'), bgColor: '#0d4ae8'},
     {adId: 2, img: require('../../assets/images/ads/SCROLL2.png'), bgColor: '#08db24'},
-    {adId: 3, img: require('../../assets/images/ads/SCROLL3.png'), bgColor: '#f00'},
+    {adId: 3, img: require('../../assets/images/ads/SCROLL3.png'), bgColor: '#ff0000'},
     {adId: 4, img: require('../../assets/images/ads/SCROLL4.png'), bgColor: '#0d4ae8'},
 ]
 
@@ -23,15 +23,17 @@ class AdScreen extends Component {
     onScroll = (stage, bgColor) => this.setState({stage, bgColor})
 
     handlePress = () => {
-        const {isFirstTime} = this.state;
         const {navigation} = this.props;
-        navigation.navigate(!isFirstTime ? 'Auth' : 'App');
+        navigation.navigate('Auth');
     }
 
     async componentDidMount() {
+        const {navigation} = this.props;
         try {
             let isFistTime = await AsyncStorage.getItem('isFirstTime');
             this.setState({isFirstTime: isFistTime === '1'});
+            if(isFistTime === '1')
+              navigation.navigate('Auth');
         } catch {
             console.log('do nothing');
         }

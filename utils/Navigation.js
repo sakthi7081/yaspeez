@@ -27,15 +27,16 @@ const AuthNavigator = createStackNavigator({
     Login: LoginScreen,
     Register: RegisterScreen
 }, {
+    initialRouteName: 'Register',
     headerMode: "none"
 })
-  
+
 const RootNavigator = createSwitchNavigator({
     Ads: AdsNavigator,
     Auth: AuthNavigator,
     App: AppNavigator
 }, {
-    initialRouteName: 'App',
+    initialRouteName: 'Ads',
     lazy: false
 });
 
