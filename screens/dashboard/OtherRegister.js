@@ -73,10 +73,16 @@ class OtherRegisterScreen extends Component {
     }
 
     init = async () => {
-        let roles = await Api.get('yusers/organization').then(res => changeKey(res.data));
-        let countries = await Api.get('yusers/countries').then(res => changeKey(res.data));
-        let sports = await Api.get('yusers/sports').then(res => changeKey(res.data));
-        this.setState({roles, countries});
+        const userId = await AsyncStorage.get('userID');
+        const {navigation} = this.props;
+        if(userId === null || userId === undefined || userId === '')
+          navigation.navigate('Auth');
+        else{
+          let roles = await Api.get('yusers/organization').then(res => changeKey(res.data));
+          let countries = await Api.get('yusers/countries').then(res => changeKey(res.data));
+          let sports = await Api.get('yusers/sports').then(res => changeKey(res.data));
+          this.setState({roles, countries, sports});
+        }
     }
 
     onChangeText = (name, text) => this.setState({[name]: text});
