@@ -5,12 +5,14 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 // create a component
 class SocialLogin extends Component {
     render() {
+        const {googleSignUp} = this.props;
+
         return (
             <View style={styles.container}>
                 <TouchableOpacity style={[styles.btn, styles.fb]}>
                     <Text style={styles.btnText}>CONNEXION AVEC FACEBOOK</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.btn, styles.gl]}>
+                <TouchableOpacity style={[styles.btn, styles.gl]} onPress={googleSignUp}>
                     <Text style={styles.btnText}>CONNEXION AVEC GOOGLE</Text>
                 </TouchableOpacity>
             </View>

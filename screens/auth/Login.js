@@ -12,6 +12,10 @@ const {width} = Dimensions.get('window');
 class LoginScreen extends Component {
     state = {email: '', origin: ''};
 
+    googleSignUp = () => {
+
+    }
+
     gotoRegister = () => {
         const {navigation} = this.props;
         navigation.navigate('Register');
@@ -41,7 +45,7 @@ class LoginScreen extends Component {
             <View style={styles.containerWrap}>
                 <View style={styles.container}>
                     <StatusBar style='light' />
-                    <SocialLogin />
+                    <SocialLogin googleSignUp={this.googleSignUp} />
                     <Text style={styles.ou}>Ou</Text>
                     <View>
                         <AuthForm onChangeText={this.onChangeText} validator={this.validator} email={email} />

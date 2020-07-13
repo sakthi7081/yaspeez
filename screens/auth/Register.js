@@ -4,9 +4,11 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-nati
 import CheckBox from '@react-native-community/checkbox';
 import SimpleReactValidator from 'simple-react-validator';
 import AsyncStorage from '@react-native-community/async-storage';
+import * as Google from 'expo-google-app-auth';
 import { StatusBar } from 'expo-status-bar';
 import SocialLogin from '../../components/ScocialLogin';
 import AuthForm from '../../components/AuthForm';
+
 
 import {isJson} from '../../utils';
 
@@ -19,6 +21,23 @@ class RegisterScreen extends Component {
     gotoLogin = () => {
         const {navigation} = this.props;
         navigation.navigate('Login');
+    }
+
+    googleSignUp = async () => {
+      try {
+        const config = {
+          androidClientId: '570181999955-3fm4ct4lagiff9ij651mcs4jc484qkrf.apps.googleusercontent.com',
+          scopes: ['profile', 'email'],
+        };
+        const { type, accessToken, user } = await Google.logInAsync(config);
+        if (type === 'success') {
+          console.log(user, 'user');
+        } else {
+          console.log('cancelled');
+        }
+      } catch(e) {
+        console.log('error', e);
+      }
     }
 
     gotoDash = async () => {
@@ -76,7 +95,7 @@ class RegisterScreen extends Component {
             <View style={styles.containerWrap}>
                 <View style={styles.container}>
                     <StatusBar style='light' />
-                    <SocialLogin />
+                    <SocialLogin googleSignUp={this.googleSignUp} />
                     <Text style={styles.ou}>Ou</Text>
                     <View>
                         <AuthForm onChangeText={this.onChangeText} validator={this.validator} email={email} />

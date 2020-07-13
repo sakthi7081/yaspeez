@@ -72,8 +72,10 @@ class OtherRegisterScreen extends Component {
     }
 
     init = async () => {
-        const userId = await AsyncStorage.get('userID');
-        const isProfileUpdated = await AsyncStorage.get('isProfileUpdated');
+        let userId = '';
+        try{ userId = await AsyncStorage.get('userID'); } catch(e) { userId = ''; }
+        let isProfileUpdated = '';
+        try{ isProfileUpdated = await AsyncStorage.get('isProfileUpdated'); } catch(e) { isProfileUpdated = ''; }
         const {navigation} = this.props;
         if(isProfileUpdated === '1')
           navigation.navigate('Dash');
