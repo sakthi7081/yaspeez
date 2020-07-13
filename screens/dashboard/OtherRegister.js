@@ -1,12 +1,13 @@
 //import liraries
 import React, { Component } from 'react';
-import { View, StyleSheet, TextInput, TouchableOpacity, Text, Dimensions, ScrollView } from 'react-native';
+import { View, StyleSheet, TextInput, TouchableOpacity, Text, Dimensions, ScrollView, Alert } from 'react-native';
 import ModalFilterPicker from 'react-native-modal-filter-picker';
 import SimpleReactValidator from 'simple-react-validator';
 import AsyncStorage from '@react-native-community/async-storage';
 import { StatusBar } from 'expo-status-bar';
+import moment from 'moment';
 
-import Api from '../../utils/api';
+import Api from '../../utils/Api';
 import {changeKey} from '../../utils';
 
 const {width} = Dimensions.get('window');
@@ -18,8 +19,9 @@ class OtherRegisterScreen extends Component {
     gotoDash = async () => {
         const {navigation} = this.props;
         const {selectedCity, selectedRole, fname, lname, dob, pob, pincode, address, phone, referral} = this.state;
-        const userId = await AsyncStorage.get('userID');
-        const userEmail = await AsyncStorage.get('userEmail');
+        const userId = await AsyncStorage.getItem('userID');
+        const userOrigin = await AsyncStorage.getItem('userOrigin');
+        const userEmail = await AsyncStorage.getItem('userEmail');
         if (this.validator.allValid()) {
           await Api.post('custom/userreg', {
               "ID":userId,
@@ -32,23 +34,29 @@ class OtherRegisterScreen extends Component {
               "PHONENUMBER":phone,
               "PLACEOFBIRTH":pob,
               "ADDRESS":address,
-              "YCITY_ID":selectedCity,
+              "YCITY_ID":selectedCity.key,
               "PINCODE":pincode,
-              "YROLE_ID":selectedRole,
+              "YROLE_ID":selectedRole.key,
               "FEEAMOUNT":"",
               "PAIDCONTRIBUTION":"",
               "MEDICALCERT":"",
               "ISMEMBER":"",
-              "ORIGIN":"",
+              "ORIGIN":userOrigin,
               "DISCIPLINES":true,
               "REFERRALBY":referral
             }).then(res => {
-              const {data} = res.data;
-              if(isJson(data)){
+              const {data} = res;
+              console.log(data, 'data');
+              if(data && data.id){
                 const {msg, id} = data;
                 AsyncStorage.setItem('isProfileUpdated', '1');
                 navigation.navigate('Dash');
+              } else {
+                Alert.alert('Error', 'Some error occurred!');
               }
+            }).catch(e => {
+              console.log(e, 'error');
+              Alert.alert('Error', e.message);
             });
         } else {
           this.validator.showMessages();
@@ -63,7 +71,7 @@ class OtherRegisterScreen extends Component {
     onSelect = async (_item, _name) => {
         let {cities} = this.state;
         if(_name === 'selectedCountry')
-            cities = await Api.get(`cities?id=${_item.key}`).then(res => changeKey(res.data));
+            cities = await Api.get(`yusers/cities?id=${_item.key}`).then(res => changeKey(res.data));
         this.setState({[`${_name}`]: _item, visible: false, cities});
     }
 
@@ -72,19 +80,19 @@ class OtherRegisterScreen extends Component {
     }
 
     init = async () => {
-        let userId = '';
-        try{ userId = await AsyncStorage.get('userID'); } catch(e) { userId = ''; }
-        let isProfileUpdated = '';
-        try{ isProfileUpdated = await AsyncStorage.get('isProfileUpdated'); } catch(e) { isProfileUpdated = ''; }
+        const userId = await AsyncStorage.getItem('userID');
+        const isProfileUpdated = await AsyncStorage.getItem('isProfileUpdated');
         const {navigation} = this.props;
+        console.log(isProfileUpdated === '1', userId === null || userId === undefined || userId === '', 'ote');
         if(isProfileUpdated === '1')
           navigation.navigate('Dash');
         else if(userId === null || userId === undefined || userId === '')
-          navigation.navigate('Auth');
+          navigation.navigate('Register');
         else{
-          let roles = await Api.get('yusers/organization').then(res => changeKey(res.data));
-          let countries = await Api.get('yusers/countries').then(res => changeKey(res.data));
-          let sports = await Api.get('yusers/sports').then(res => changeKey(res.data));
+          let roles = await Api.get('yusers/organization').then(res => changeKey(res.data)).catch(e => Alert.alert('Error', e.message));
+          let countries = await Api.get('yusers/countries').then(res => changeKey(res.data)).catch(e => Alert.alert('Error', e.message));
+          let sports = await Api.get('yusers/sports').then(res => changeKey(res.data)).catch(e => Alert.alert('Error', e.message));
+          console.log(roles, countries, sports);
           this.setState({roles, countries, sports});
         }
     }
@@ -93,7 +101,12 @@ class OtherRegisterScreen extends Component {
 
     constructor(props) {
       super(props);
-      this.validator = new SimpleReactValidator({autoForceUpdate: this, locale: 'fr'});
+      this.validator = new SimpleReactValidator({
+        autoForceUpdate: this,
+        messages: {
+          accepted: 'The :attribute must be in the format DD/MM/YYYY'
+        }
+      });
     }
 
     async componentDidMount() {
@@ -119,10 +132,10 @@ class OtherRegisterScreen extends Component {
                   </View>)}
                   <View style={styles.row}>
                       <TextInput style={[styles.inputStyle, styles.left]} value={dob} onChangeText={txt => this.onChangeText('dob', txt)} placeholder="Date of Birth" />
-                      <TextInput style={[styles.inputStyle, styles.right]} value={dob} onChangeText={txt => this.onChangeText('dob', txt)} placeholder="Place of Birth" />
+                      <TextInput style={[styles.inputStyle, styles.right]} value={pob} onChangeText={txt => this.onChangeText('pob', txt)} placeholder="Place of Birth" />
                   </View>
-                  {(this.validator.message('dob', dob, 'required|date') || this.validator.message('place of birth', pob, 'required|alpha_space')) && (<View style={styles.row}>
-                    <Text style={styles.error}>{this.validator.message('dob', dob, 'required|date')}</Text>
+                  {(this.validator.message('dob', moment(dob, 'DD/MM/YYYY', true).isValid(), 'required|accepted') || this.validator.message('place of birth', pob, 'required|alpha_space')) && (<View style={styles.row}>
+                    <Text style={styles.error}>{this.validator.message('dob', moment(dob, 'DD/MM/YYYY', true).isValid(), 'required|accepted')}</Text>
                     <Text style={styles.error}>{this.validator.message('place of birth', pob, 'required|alpha_space')}</Text>
                   </View>)}
                   <View style={[styles.row, styles.flexCol]}>
@@ -141,9 +154,9 @@ class OtherRegisterScreen extends Component {
                           <TextInput style={{color: '#000', fontSize: 18}} placeholder="Cities" editable={false} value={selectedCity && selectedCity.label} />
                       </TouchableOpacity>
                   </View>
-                  {(this.validator.message('country', selectedCountry, 'required|numeric') || this.validator.message('city', selectedCity, 'required|numeric')) && (<View style={styles.row}>
-                    <Text style={styles.error}>{this.validator.message('country', selectedCountry, 'required|numeric')}</Text>
-                    <Text style={styles.error}>{this.validator.message('city', selectedCity, 'required|numeric')}</Text>
+                  {(this.validator.message('country', selectedCountry && selectedCountry.key, 'required|numeric') || this.validator.message('city', selectedCity && selectedCity.key, 'required|numeric')) && (<View style={styles.row}>
+                    <Text style={styles.error}>{this.validator.message('country', selectedCountry && selectedCountry.key, 'required|numeric')}</Text>
+                    <Text style={styles.error}>{this.validator.message('city', selectedCity && selectedCity.key, 'required|numeric')}</Text>
                   </View>)}
                   <View style={styles.row}>
                       <TextInput style={[styles.inputStyle, styles.left]} value={pincode} onChangeText={txt => this.onChangeText('pincode', txt)} placeholder="Pincode" />
@@ -161,9 +174,9 @@ class OtherRegisterScreen extends Component {
                           <TextInput style={{color: '#000', fontSize: 18}} placeholder="Sports" editable={false} value={selectedSport && selectedSport.label} />
                       </TouchableOpacity>
                   </View>
-                  {(this.validator.message('role', selectedRole, 'required|numeric') || this.validator.message('sports', selectedSport, 'numeric')) && (<View style={styles.row}>
-                    <Text style={styles.error}>{this.validator.message('role', selectedRole, 'required|numeric')}</Text>
-                    <Text style={styles.error}>{this.validator.message('sports', selectedSport, 'numeric')}</Text>
+                  {(this.validator.message('role', selectedRole && selectedRole.key, 'required|numeric') || this.validator.message('sports', selectedSport && selectedSport.key, 'numeric')) && (<View style={styles.row}>
+                    <Text style={styles.error}>{this.validator.message('role', selectedRole && selectedRole.key, 'required|numeric')}</Text>
+                    <Text style={styles.error}>{this.validator.message('sports', selectedSport && selectedSport.key, 'numeric')}</Text>
                   </View>)}
                 </ScrollView>
                 <View style={styles.row}>

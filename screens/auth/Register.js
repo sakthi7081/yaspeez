@@ -1,16 +1,18 @@
 //import liraries
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import SimpleReactValidator from 'simple-react-validator';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as Google from 'expo-google-app-auth';
 import { StatusBar } from 'expo-status-bar';
+import Axios from 'axios';
 import SocialLogin from '../../components/ScocialLogin';
 import AuthForm from '../../components/AuthForm';
 
 
-import {isJson} from '../../utils';
+import Api from '../../utils/Api';
+import {globals} from '../../utils/Constants';
 
 const {width} = Dimensions.get('window');
 
@@ -26,12 +28,13 @@ class RegisterScreen extends Component {
     googleSignUp = async () => {
       try {
         const config = {
-          androidClientId: '570181999955-3fm4ct4lagiff9ij651mcs4jc484qkrf.apps.googleusercontent.com',
+          androidClientId: globals.google.android,
           scopes: ['profile', 'email'],
         };
         const { type, accessToken, user } = await Google.logInAsync(config);
         if (type === 'success') {
-          console.log(user, 'user');
+          this.setState({email: user.email, utilize: true, nouveau: true, origin: 'google'});
+          await this.gotoDash();
         } else {
           console.log('cancelled');
         }
@@ -42,7 +45,7 @@ class RegisterScreen extends Component {
 
     gotoDash = async () => {
         const {navigation} = this.props;
-        const {email} = this.state;
+        const {email, origin} = this.state;
         if (this.validator.allValid()) {
           await Api.post('custom/userreg', {
               "ID":"0",
@@ -62,17 +65,23 @@ class RegisterScreen extends Component {
               "PAIDCONTRIBUTION":"",
               "MEDICALCERT":"",
               "ISMEMBER":"",
-              "ORIGIN":"",
+              "ORIGIN":origin,
               "DISCIPLINES":"",
               "REFERRALBY":""
-            }).then(res => {
-              const {data} = res.data;
-              if(isJson(data)){
+            }).then(async res => {
+              const {data} = res;
+              console.log(data, 'data');
+              if(data && data.id){
                 const {msg, id} = data;
-                AsyncStorage.setItem('userID', id);
-                AsyncStorage.setItem('userEmail', email);
+                await AsyncStorage.setItem('userID', id);
+                await AsyncStorage.setItem('userEmail', email);
+                await AsyncStorage.setItem('userOrigin', origin);
                 navigation.navigate('App');
+              } else {
+                Alert.alert('Error', 'Some error occurred!');
               }
+            }).catch(e => {
+              Alert.alert('Error', e.message);
             });
         } else {
           this.validator.showMessages();
@@ -88,7 +97,6 @@ class RegisterScreen extends Component {
     }
 
     render() {
-        const {gotoDash} = this.props;
         const {email, origin, utilize, nouveau} = this.state;
 
         return (

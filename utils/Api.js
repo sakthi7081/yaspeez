@@ -1,7 +1,7 @@
 import Axios from "axios";
 
 const Api = Axios.create({
-    baseURL: 'http://vinodhwebapp.azurewebsites.net/yusers/',
+    baseURL: 'http://vinodhwebapp.azurewebsites.net/',
     timeout: 10000,
 });
 

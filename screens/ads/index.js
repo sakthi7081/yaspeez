@@ -24,8 +24,7 @@ class AdScreen extends Component {
 
     handlePress = async () => {
         const {navigation} = this.props;
-        let userId = '';
-        try{ userId = await AsyncStorage.get('userID'); } catch(e) { userId = ''; }
+        let userId = await AsyncStorage.getItem('userID');
         navigation.navigate((userId !== '' || userId !== null || userId !== undefined) ? 'App' : 'Auth');
     }
 
@@ -33,8 +32,7 @@ class AdScreen extends Component {
         const {navigation} = this.props;
         try {
             let isFistTime = await AsyncStorage.getItem('isFirstTime');
-            let userId = '';
-            try{ userId = await AsyncStorage.get('userID'); } catch(e) { userId = ''; }
+            let userId = await AsyncStorage.getItem('userID');
             this.setState({isFirstTime: isFistTime === '1'});
             if(userId !== '' || userId !== null || userId !== undefined)
               navigation.navigate('App');

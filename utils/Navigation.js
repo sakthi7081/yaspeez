@@ -14,21 +14,25 @@ const AppNavigator = createSwitchNavigator({
     Other: OtherRegisterScreen,
     Dash: MapScreen
 }, {
-    headerMode: "none"
+    headerMode: "none",
+    lazy: false
 });
 
 const AdsNavigator = createStackNavigator({
     Ads: AdScreen
 }, {
-    headerMode: "none"
+    headerMode: "none",
+    lazy: false
 })
 
 const AuthNavigator = createStackNavigator({
+    Register: RegisterScreen,
     Login: LoginScreen,
-    Register: RegisterScreen
+    App: AppNavigator
 }, {
     initialRouteName: 'Register',
-    headerMode: "none"
+    headerMode: "none",
+    lazy: false
 })
 
 const RootNavigator = createSwitchNavigator({
