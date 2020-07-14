@@ -29,7 +29,8 @@ class RegisterScreen extends Component {
       this.setState({isLoading: true});
       try {
         const config = {
-          androidClientId: '570181999955-3fm4ct4lagiff9ij651mcs4jc484qkrf.apps.googleusercontent.com',
+          androidClientId: '570181999955-doqrtf6mvtlq89areq6852eq8t28o9bf.apps.googleusercontent.com',
+          androidStandaloneAppClientId: '570181999955-3fm4ct4lagiff9ij651mcs4jc484qkrf.apps.googleusercontent.com',
           scopes: ['profile', 'email'],
         };
         const { type, accessToken, user } = await Google.logInAsync(config);
