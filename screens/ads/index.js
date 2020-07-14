@@ -38,10 +38,11 @@ class AdScreen extends Component {
               navigation.navigate('App');
             else if(isFistTime === '1')
               navigation.navigate('Auth');
+            else
+              AsyncStorage.setItem('isFirstTime', '1');
         } catch {
             console.log('do nothing');
         }
-        AsyncStorage.setItem('isFirstTime', '1');
     }
 
     render() {
