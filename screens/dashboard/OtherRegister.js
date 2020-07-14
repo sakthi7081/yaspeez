@@ -1,22 +1,24 @@
 //import liraries
 import React, { Component } from 'react';
-import { View, StyleSheet, TextInput, TouchableOpacity, Text, Dimensions, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, TextInput, TouchableOpacity, Text, Dimensions, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import ModalFilterPicker from 'react-native-modal-filter-picker';
 import SimpleReactValidator from 'simple-react-validator';
 import AsyncStorage from '@react-native-community/async-storage';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { StatusBar } from 'expo-status-bar';
 import moment from 'moment';
 
 import Api from '../../utils/Api';
 import {changeKey} from '../../utils';
 
-const {width} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 // create a component
 class OtherRegisterScreen extends Component {
-    state = {selectedCountry: null, selectedCity: null, selectedRole: null, selectedSport: null, options: [], visible: false, cSelect: 'selectedCity', roles: [], countries: [], cities: [], sports: [], fname: '', lname: '', dob: '', pob: '', phone: '', address: '', email: '', pincode: '', referral: ''};
+    state = {selectedCountry: null, selectedCity: null, selectedRole: null, selectedSport: null, options: [], visible: false, cSelect: 'selectedCity', roles: [], countries: [], cities: [], sports: [], fname: '', lname: '', dob: '', pob: '', phone: '', address: '', email: '', pincode: '', referral: '', showPicker: false, isLoading: false};
 
     gotoDash = async () => {
+        this.setState({isLoading: true});
         const {navigation} = this.props;
         const {selectedCity, selectedRole, fname, lname, dob, pob, pincode, address, phone, referral} = this.state;
         const userId = await AsyncStorage.getItem('userID');
@@ -52,13 +54,16 @@ class OtherRegisterScreen extends Component {
                 AsyncStorage.setItem('isProfileUpdated', '1');
                 navigation.navigate('Dash');
               } else {
+                this.setState({isLoading: false});
                 Alert.alert('Error', 'Some error occurred!');
               }
             }).catch(e => {
               console.log(e, 'error');
+              this.setState({isLoading: false});
               Alert.alert('Error', e.message);
             });
         } else {
+          this.setState({isLoading: false});
           this.validator.showMessages();
           this.forceUpdate();
         }
@@ -83,7 +88,6 @@ class OtherRegisterScreen extends Component {
         const userId = await AsyncStorage.getItem('userID');
         const isProfileUpdated = await AsyncStorage.getItem('isProfileUpdated');
         const {navigation} = this.props;
-        console.log(isProfileUpdated === '1', userId === null || userId === undefined || userId === '', 'ote');
         if(isProfileUpdated === '1')
           navigation.navigate('Dash');
         else if(userId === null || userId === undefined || userId === '')
@@ -98,6 +102,13 @@ class OtherRegisterScreen extends Component {
     }
 
     onChangeText = (name, text) => this.setState({[name]: text});
+
+    onDateChange = (event, selectedDate) => {
+      const currentDate = selectedDate || new Date();
+      this.setState({showPicker: false, dob: moment(currentDate).format('DD/MM/YYYY')});
+    }
+
+    showPicker = () => this.setState({'showPicker': true});
 
     constructor(props) {
       super(props);
@@ -114,7 +125,7 @@ class OtherRegisterScreen extends Component {
     }
 
     render() {
-        const {selectedCountry, selectedCity, selectedRole, selectedSport, options, visible, cSelect, countries, roles, cities, sports, fname, lname, dob, pob, pincode, address, phone, referral} = this.state;
+        const {selectedCountry, selectedCity, selectedRole, selectedSport, options, visible, cSelect, countries, roles, cities, sports, fname, lname, dob, pob, pincode, address, phone, referral, showPicker, isLoading} = this.state;
         return (
             <View style={styles.container}>
                 <StatusBar style='light' />
@@ -131,7 +142,9 @@ class OtherRegisterScreen extends Component {
                     <Text style={styles.error}>{this.validator.message('lname', lname, 'required|alpha_space')}</Text>
                   </View>)}
                   <View style={styles.row}>
-                      <TextInput style={[styles.inputStyle, styles.left]} value={dob} onChangeText={txt => this.onChangeText('dob', txt)} placeholder="Date of Birth" />
+                      <TouchableOpacity style={[styles.left, styles.inputStyle]} onPress={this.showPicker}>
+                        <TextInput style={[styles.inputStyle, styles.dateField]} editable={false} value={dob} onChangeText={txt => this.onChangeText('dob', txt)} placeholder="Date of Birth" />
+                      </TouchableOpacity>
                       <TextInput style={[styles.inputStyle, styles.right]} value={pob} onChangeText={txt => this.onChangeText('pob', txt)} placeholder="Place of Birth" />
                   </View>
                   {(this.validator.message('dob', moment(dob, 'DD/MM/YYYY', true).isValid(), 'required|accepted') || this.validator.message('place of birth', pob, 'required|alpha_space')) && (<View style={styles.row}>
@@ -180,16 +193,20 @@ class OtherRegisterScreen extends Component {
                   </View>)}
                 </ScrollView>
                 <View style={styles.row}>
-                    <TouchableOpacity style={styles.submitBtn} onPress={this.gotoDash}>
-                        <Text style={styles.submitBtnTxt}>Update</Text>
+                    <TouchableOpacity style={styles.submitBtn} onPress={isLoading ? console.log('do nothing') : this.gotoDash}>
+                        {isLoading ? (<ActivityIndicator size={'small'} color="#fff"  />) : (<Text style={styles.submitBtnTxt}>Update</Text>)}
                     </TouchableOpacity>
                 </View>
                 <ModalFilterPicker
+                    listContainerStyle={{backgroundColor: '#fff', width: width - 50, height: height - 200, marginBottom: height - (height - 125), top: height - (height - 100), borderRadius: 10}}
                     visible={visible}
                     onSelect={async (_item) => await this.onSelect(_item, cSelect)}
                     onCancel={this.onCancel}
                     options={options}
                 />
+                {showPicker && (
+                    <DateTimePicker value={new Date()} mode="date" display="default" onChange={this.onDateChange} />
+                )}
             </View>
         );
     }
@@ -224,7 +241,13 @@ const styles = StyleSheet.create({
     inputStyle: {
         flex: 1, borderColor: '#fff', borderWidth: 1, borderRadius: 5, padding: 10, color: '#000', fontSize: 18, backgroundColor: '#eee'
     },
+    dateField: {
+      padding: 0, borderWidth: 0, backgroundColor: 'transparent'
+    },
     submitBtn: {
+        width: 200,
+        height: 44,
+        justifyContent: 'center',
         flex: 1,
         marginTop: 20,
         marginBottom: 20,
@@ -234,6 +257,7 @@ const styles = StyleSheet.create({
         borderRadius: 50
     },
     submitBtnTxt: {
+        textAlign: 'center',
         fontSize: 16,
         color: '#fff',
         fontWeight: 'bold',

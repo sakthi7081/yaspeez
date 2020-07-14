@@ -1,6 +1,6 @@
 //import liraries
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import SimpleReactValidator from 'simple-react-validator';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -12,13 +12,13 @@ import AuthForm from '../../components/AuthForm';
 
 
 import Api from '../../utils/Api';
-import {globals} from '../../utils/Constants';
+// import {globals} from '../../utils/Constants';
 
 const {width} = Dimensions.get('window');
 
 // create a component
 class RegisterScreen extends Component {
-    state = {email: '', origin: '', utilize: false, nouveau: false};
+    state = {email: '', origin: '', utilize: false, nouveau: false, isLoading: false};
 
     gotoLogin = () => {
         const {navigation} = this.props;
@@ -26,19 +26,22 @@ class RegisterScreen extends Component {
     }
 
     googleSignUp = async () => {
+      this.setState({isLoading: true});
       try {
         const config = {
-          androidClientId: globals.google.android,
+          androidClientId: '570181999955-3fm4ct4lagiff9ij651mcs4jc484qkrf.apps.googleusercontent.com',
           scopes: ['profile', 'email'],
         };
         const { type, accessToken, user } = await Google.logInAsync(config);
         if (type === 'success') {
-          this.setState({email: user.email, utilize: true, nouveau: true, origin: 'google'});
+          this.setState({email: user.email, utilize: true, nouveau: true, origin: 'google', isLoading: false});
           await this.gotoDash();
         } else {
+          this.setState({isLoading: false});
           console.log('cancelled');
         }
       } catch(e) {
+        this.setState({isLoading: false});
         console.log('error', e);
       }
     }
@@ -97,7 +100,7 @@ class RegisterScreen extends Component {
     }
 
     render() {
-        const {email, origin, utilize, nouveau} = this.state;
+        const {email, origin, utilize, nouveau, isLoading} = this.state;
 
         return (
             <View style={styles.containerWrap}>
@@ -118,8 +121,8 @@ class RegisterScreen extends Component {
                         </View>
                         <Text style={styles.error}>{this.validator.message('nouveau', nouveau, 'required|accepted')}</Text>
                     </View>
-                    <TouchableOpacity style={styles.submitBtn} onPress={this.gotoDash}>
-                        <Text style={styles.submitBtnTxt}>Creer un compte</Text>
+                    <TouchableOpacity style={styles.submitBtn} onPress={isLoading ? console.log('do nothing') : this.gotoDash}>
+                        {isLoading ? (<ActivityIndicator size={'small'} color="#fff"  />) : (<Text style={styles.submitBtnTxt}>Creer un compte</Text>)}
                     </TouchableOpacity>
                 </View>
                 <View style={styles.bottomView}>
@@ -166,6 +169,9 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     submitBtn: {
+        width: 200,
+        height: 44,
+        justifyContent: 'center',
         marginVertical: 40,
         backgroundColor: '#888',
         paddingHorizontal: 25,
@@ -174,6 +180,7 @@ const styles = StyleSheet.create({
     },
     submitBtnTxt: {
         fontSize: 16,
+        textAlign: 'center',
         color: '#fff',
         fontWeight: 'bold'
     },
