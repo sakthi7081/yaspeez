@@ -16,6 +16,10 @@ class LoginScreen extends Component {
 
     }
 
+    facebookSignUp = () => {
+
+    }
+
     gotoRegister = () => {
         const {navigation} = this.props;
         navigation.navigate('Register');
@@ -45,7 +49,7 @@ class LoginScreen extends Component {
             <View style={styles.containerWrap}>
                 <View style={styles.container}>
                     <StatusBar style='light' />
-                    <SocialLogin googleSignUp={this.googleSignUp} />
+                    <SocialLogin googleSignUp={this.googleSignUp} facebookSignUp={this.facebookSignUp} />
                     <Text style={styles.ou}>Ou</Text>
                     <View>
                         <AuthForm onChangeText={this.onChangeText} validator={this.validator} email={email} />

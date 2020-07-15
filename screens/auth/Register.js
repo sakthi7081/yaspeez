@@ -5,6 +5,7 @@ import CheckBox from '@react-native-community/checkbox';
 import SimpleReactValidator from 'simple-react-validator';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as Google from 'expo-google-app-auth';
+import * as Facebook from 'expo-facebook';
 import { StatusBar } from 'expo-status-bar';
 import Axios from 'axios';
 import SocialLogin from '../../components/ScocialLogin';
@@ -23,6 +24,35 @@ class RegisterScreen extends Component {
     gotoLogin = () => {
         const {navigation} = this.props;
         navigation.navigate('Login');
+    }
+
+    facebookSignUp = async () => {
+      this.setState({isLoading: true});
+      try{
+        await Facebook.initializeAsync('1055710538156863');
+        const {
+          type,
+          token,
+          expires,
+          permissions,
+          declinedPermissions,
+        } = await Facebook.logInWithReadPermissionsAsync({
+          permissions: ['public_profile', 'email'],
+        });
+        if (type === 'success') {
+          const response = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${token}`);
+          const userdata = await response.json();
+          const {email} = userdata;
+          this.setState({email: email, utilize: true, nouveau: true, origin: 'facebook', isLoading: false});
+          await this.gotoDash();
+        } else {
+          this.setState({isLoading: false});
+          console.log('cancelled');
+        }
+      } catch(e) {
+        this.setState({isLoading: false});
+        console.log('error', e);
+      }
     }
 
     googleSignUp = async () => {
@@ -107,7 +137,7 @@ class RegisterScreen extends Component {
             <View style={styles.containerWrap}>
                 <View style={styles.container}>
                     <StatusBar style='light' />
-                    <SocialLogin googleSignUp={this.googleSignUp} />
+                    <SocialLogin googleSignUp={this.googleSignUp} facebookSignUp={this.facebookSignUp} />
                     <Text style={styles.ou}>Ou</Text>
                     <View>
                         <AuthForm onChangeText={this.onChangeText} validator={this.validator} email={email} />
