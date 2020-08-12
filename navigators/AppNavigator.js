@@ -9,6 +9,7 @@ import ShopScreen from '../screens/ShopScreen';
 import AccountScreen from '../screens/AccountScreen';
 
 import MapNavigator from './MapNavigator';
+import ScheduleScreen from '../screens/ScheduleScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -25,7 +26,7 @@ export default class AppNavigator extends React.Component {
     return (
       <Tab.Navigator initialRouteName="Map" tabBarOptions={{showLabel: false}}>
         <Tab.Screen name="Chats" component={ChatScreen} options={{tabBarIcon: props => this.renderIcon(props, 'message-square')}} />
-        <Tab.Screen name="Photos" component={PhotoScreen} options={{tabBarIcon: props => this.renderIcon(props, 'camera')}} />
+        <Tab.Screen name="Photos" component={ScheduleScreen} options={{tabBarIcon: props => this.renderIcon(props, 'calendar')}} />
         <Tab.Screen name="Map" component={MapNavigator} options={{tabBarIcon: props => this.renderIcon(props, 'map')}} />
         <Tab.Screen name="Shop" component={ShopScreen} options={{tabBarIcon: props => this.renderIcon(props, 'shopping-bag')}} />
         <Tab.Screen name="Account" component={AccountScreen} options={{tabBarIcon: props => this.renderIcon(props, 'person')}} />

@@ -26,4 +26,8 @@ export const getAllOrganizations = async () => {
   return await getMethod('organization/allorganization');
 };
 
+export const getUserEvents = async userId => {
+  return await getMethod(`custom/getusereventschedules?userid=${userId}`)
+}
+
 export default api;

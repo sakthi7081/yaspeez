@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   headerUserImg: {width: 70, height: 70, backgroundColor: '#fff', borderRadius: 50, marginBottom: 25},
   headerInfoBar: {flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between'},
   usrImgRow: {flexDirection: 'row'},
-  usrImg: {height: singleImgWidth, width: singleImgWidth, margin: 5, borderRadius: 10, borderWidth: 1},
+  usrImg: {height: singleImgWidth, width: singleImgWidth, margin: 5, borderRadius: 10, borderWidth: 1, backgroundColor: '#eee'},
   usrImgContainer: {padding: 15},
   innerHeading: {marginBottom: 5, marginLeft: 5, fontWeight: 'bold', fontSize: 18},
 });
