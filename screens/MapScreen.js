@@ -53,11 +53,16 @@ export default class MapScreen extends React.Component {
 
   async componentDidMount() {
     const {region} = this.state;
+    const {navigation} = this.props;
     await getAllOrganizations()
       .then(({data}) => {
         let mapData = [];
         data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
         this.setState({markers: mapData});
+        // navigation.reset({
+        //   index: 0,
+        //   routes: [{ name: 'MapScreen' }],
+        // });
         this.handleAnimate(0);
       })
       .catch(e => Alert.alert('Error', e.message));
@@ -87,7 +92,7 @@ export default class MapScreen extends React.Component {
           <ScrollView horizontal scrollEventThrottle={1} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.endPadding} snapToInterval={CARD_WIDTH + 20} snapToAlignment={'center'} onScroll={this.handleScroll} >
             {markers.map(({image, name, description, id, distance, metric, rating, address}, index) => (
               <TouchableOpacity key={`card-item-${index}-${id}`} style={styles.card} onPress={() => this.gotoMapItem({image, name, description, id, distance, metric, rating, address})}>
-                <CImage source={{uri: `http://yaspeez.fourthapetech.com/content/images/${image}`}} noImgUrl={{uri: noImgUrl}} resizeMode='contain' style={styles.cardImage} />
+                <CImage source={{uri: `${image}`}} noImgUrl={{uri: noImgUrl}} resizeMode='contain' style={styles.cardImage} />
                 <Layout style={[styles.cardItem, styles.transBg]}>
                   <Text style={styles.cardTitle} category='h6' numberOfLines={1}>{name}</Text>
                   <Text style={styles.description} numberOfLines={2} category='p2'>{description}</Text>
@@ -128,7 +133,7 @@ const styles = StyleSheet.create({
   }, endPadding: {
     paddingRight: 0
   }, cardImage: {
-    width: 80, height: 80, marginHorizontal: 5, borderRadius: 10, overflow: 'hidden', backgroundColor: '#ccc'
+    width: 80, height: 80, marginHorizontal: 5, borderRadius: 10, overflow: 'hidden'
   }, cardItem: {
     flex: 1, marginHorizontal: 5
   }, flexRow:{

@@ -11,7 +11,7 @@ export default class CImage extends Component {
     const {imgErr} = this.state;
     return (
       <Image
-        style={style}
+        style={[style, imgErr ? {backgroundColor: '#ccc'} : {}]}
         source={!imgErr ? source : noImgUrl}
         onError={this.sourceError}
         resizeMode={resizeMode} />

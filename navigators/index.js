@@ -38,7 +38,7 @@ import User from '../database/models/user';
 // };
 
 export default class Navigation extends React.Component {
-  state = {appIsReady: false, initScreen: 'Auth'};
+  state = {appIsReady: false, initScreen: 'Ad'};
 
   async componentDidMount() {
     try {
@@ -49,10 +49,16 @@ export default class Navigation extends React.Component {
     await this.prepareResources();
   }
 
+  async componentDidUpdate() {
+    await this.performAPICalls();
+    let users = await User.query();
+    this.setState({ appIsReady: true, initScreen: users && users.length > 0 ? 'App' : 'Ad' });
+  }
+
   prepareResources = async () => {
     await this.performAPICalls();
     let users = await User.query();
-    this.setState({ appIsReady: true, initScreen: users && users.length > 0 ? 'App' : 'Auth' }, async () => {
+    this.setState({ appIsReady: true, initScreen: users && users.length > 0 ? 'App' : 'Ad' }, async () => {
       await SplashScreen.hideAsync();
     });
   };

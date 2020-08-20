@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, Layout, Button, Icon, Divider, List, ListItem } from '@ui-kitten/components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, Dimensions, ScrollView, View, Animated } from 'react-native';
+import { getOrg } from '../utils/api';
 
 const {width, height} = Dimensions.get('window');
 const CARD_WIDTH = width - 100;
@@ -11,7 +12,7 @@ const data = [
 ];
 
 export default class MapItemScreen extends React.Component {
-  state = {size: 100, scrollY: new Animated.Value(0)};
+  state = {size: 100, scrollY: new Animated.Value(0), coaches: [], sports: [], email: '', number: ''};
 
   handleBack = () => {
     const {navigation} = this.props;
@@ -25,7 +26,7 @@ export default class MapItemScreen extends React.Component {
       <Button onPress={() => this.handleBack()} accessoryLeft={() => this.renderIcon('chevron-left', 24, '#fff')} appearance={'ghost'} style={styles.headerButton} />
       <Animated.View style={[styles.flexRow, styles.headerImage, {margin: 0}]}>
         <Animated.Image source={{uri: `${image}?random=${id}`}} resizeMode='contain' resizeMethod={'scale'} style={[styles.headerImage, {position: 'relative', left: left, height: size}]} />
-        <Animated.Text numberOfLines={1} style={{color: '#fff', position: 'relative', left: -200, top: 10, fontWeight: 'bold', opacity: opacity}}>{name}</Animated.Text>
+        <Animated.Text numberOfLines={1} style={{color: '#fff', position: 'relative', left: -200, top: 14, fontWeight: 'bold', opacity: opacity}}>{name}</Animated.Text>
       </Animated.View>
       <Button accessoryLeft={() => this.renderIcon('share-outline', 24, '#fff')} appearance={'ghost'} style={styles.headerButton} />
     </Layout>
@@ -48,16 +49,16 @@ export default class MapItemScreen extends React.Component {
     </Layout>
   );
 
-  renderContent = description => (
+  renderContent = (description, email, number) => (
     <Layout style={[styles.bgBlue, {marginHorizontal: 25}]}>
       <Divider style={styles.dividerStyle} />
       <Layout style={[styles.flexRow, styles.bgBlue, styles.aCenter, {justifyContent: 'flex-start'}]}>
         {this.renderIcon('email-outline', 16, '#fff')}
-        <Text style={[styles.subText, styles.subTextMargin]}>contact@sdlccenter.com</Text>
+        <Text style={[styles.subText, styles.subTextMargin]}>{email}</Text>
       </Layout>
       <Layout style={[styles.flexRow, styles.bgBlue, styles.aCenter, {justifyContent: 'flex-start'}]}>
         {this.renderIcon('smartphone-outline', 16, '#fff')}
-        <Text style={[styles.subText, styles.subTextMargin]}>9876543210</Text>
+        <Text style={[styles.subText, styles.subTextMargin]}>{number}</Text>
       </Layout>
       <Divider style={styles.dividerStyle} />
       <Text style={[styles.subText, styles.desc]} numberOfLines={3}>{description}</Text>
@@ -99,38 +100,32 @@ export default class MapItemScreen extends React.Component {
   renderItem = ({item}) => (
     <ListItem
       style={[{backgroundColor: '#fff', borderBottomColor: '#cccccc50', borderBottomWidth: 1, fontWeight: 'bold'}]}
-      title={<Text>{item}</Text>}
+      title={<Text>{item.name}</Text>}
       accessoryLeft={props => <Icon name='radio-button-off-outline' {...props} />}
     />
   );
 
-  renderActivities = () => (
+  renderActivities = (sports) => (
     <Layout style={[styles.trans, styles.wrapper, styles.bottomWrapper]}>
       <Text style={styles.innerHeading} category={'h6'}>Activities</Text>
-      <List style={[styles.trans, {marginTop: 10}]} data={data} renderItem={this.renderItem} />
+      {sports.length === 0 && (<Text style={{padding: 8}}>No activities available!</Text>)}
+      <List style={[styles.trans, {marginTop: 10}]} data={sports} renderItem={this.renderItem} />
     </Layout>
   );
 
-  renderCoaches = () => (
+  renderCoaches = (coaches) => (
     <Layout style={[styles.trans, styles.wrapper, styles.bottomWrapper, {marginTop: 0}]}>
       <Text style={styles.innerHeading} category={'h6'}>Coaches</Text>
       <Layout style={[styles.trans]}>
         <Layout style={[styles.trans, styles.flexRow, styles.wrapper]}>
-          <Layout style={[styles.trans, styles.aCenter]}>
-            <Image source={{uri: `https://picsum.photos/100?random=${new Date().getTime()}213`}} resizeMode='cover' style={{height: 80, width: 80, borderRadius: 50}} />
-            <Text numberOfLines={1} category={'p2'} style={{marginTop: 5, fontWeight: 'bold'}}>Yann Lamothe</Text>
-            <Text numberOfLines={1} category={'c2'}>Grappeling</Text>
-          </Layout>
-          <Layout style={[styles.trans, styles.aCenter]}>
-            <Image source={{uri: `https://picsum.photos/100?random=${new Date().getTime()}123`}} resizeMode='cover' style={{height: 80, width: 80, borderRadius: 50}} />
-            <Text numberOfLines={1} category={'p2'} style={{marginTop: 5, fontWeight: 'bold'}}>Yann Lamothe</Text>
-            <Text numberOfLines={1} category={'c2'}>Grappeling</Text>
-          </Layout>
-          <Layout style={[styles.trans, styles.aCenter]}>
-            <Image source={{uri: `https://picsum.photos/100?random=${new Date().getTime()}321`}} resizeMode='cover' style={{height: 80, width: 80, borderRadius: 50}} />
-            <Text numberOfLines={1} category={'p2'} style={{marginTop: 5, fontWeight: 'bold'}}>Yann Lamothe</Text>
-            <Text numberOfLines={1} category={'c2'}>Grappeling</Text>
-          </Layout>
+          {coaches.length === 0 && (<Text>No coaches available!</Text>)}
+          {coaches.forEach((coach, i) => (
+            <Layout style={[styles.trans, styles.aCenter]}>
+              <Image source={{uri: `${coach && coach.img}`}} resizeMode='cover' style={{height: 80, width: 80, borderRadius: 50}} />
+              <Text numberOfLines={1} category={'p2'} style={{marginTop: 5, fontWeight: 'bold'}}>{coach && coach.img}</Text>
+              <Text numberOfLines={1} category={'c2'}>{coach && coach.special}</Text>
+            </Layout>
+          ))}
         </Layout>
       </Layout>
     </Layout>
@@ -143,6 +138,17 @@ export default class MapItemScreen extends React.Component {
     }]
   );
 
+  async componentDidMount() {
+    const {route} = this.props;
+    const {params} = route;
+    const {item} = params;
+    const {id} = item;
+    let orgDetails = await getOrg(id);
+    const {data} = orgDetails;
+    const {sports, coaches, email, number} = data;
+    this.setState({sports, coaches, email, number});
+  }
+
   render() {
     const {route} = this.props;
     const {params} = route;
@@ -152,7 +158,7 @@ export default class MapItemScreen extends React.Component {
     const imgHeight = () => {
       const {scrollY} = this.state;
       return scrollY.interpolate({
-        inputRange: [0, 140],
+        inputRange: [0, 50],
         outputRange: [100, 40],
         extrapolate: 'clamp',
         useNativeDriver: true
@@ -162,7 +168,7 @@ export default class MapItemScreen extends React.Component {
     const imgLeft = () => {
       const {scrollY} = this.state;
       return scrollY.interpolate({
-        inputRange: [0, 140],
+        inputRange: [0, 50],
         outputRange: [-10, -100],
         extrapolate: 'clamp',
         useNativeDriver: true
@@ -172,12 +178,14 @@ export default class MapItemScreen extends React.Component {
     const textOpacity = () => {
       const {scrollY} = this.state;
       return scrollY.interpolate({
-        inputRange: [100, 140],
+        inputRange: [50, 50],
         outputRange: [0, 1],
         extrapolate: 'clamp',
         useNativeDriver: true
       });
     };
+
+    const {sports, email, number, coaches} = this.state;
 
 
     return (
@@ -188,11 +196,11 @@ export default class MapItemScreen extends React.Component {
         <Animated.ScrollView style={{position: 'relative', zIndex: 10}} onScroll={this.handleScroll} scrollEventThrottle={16} overScrollMode={'never'}>
           <Layout style={[styles.bgBlue, styles.top]}>
             {this.renderSubHeader(rating, name, address, distance, metric)}
-            {this.renderContent(description)}
+            {this.renderContent(description, email, number)}
           </Layout>
           <Layout style={[styles.trans, {marginVertical: 15}]}>
-            {this.renderCoaches()}
-            {this.renderActivities()}
+            {this.renderCoaches(coaches)}
+            {this.renderActivities(sports)}
             {this.renderReviews()}
           </Layout>
         </Animated.ScrollView>

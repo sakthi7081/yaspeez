@@ -30,4 +30,8 @@ export const getUserEvents = async userId => {
   return await getMethod(`custom/getusereventschedules?userid=${userId}`)
 }
 
+export const getOrg = async orgId => {
+  return await getMethod(`organization/getorgnaization?id=${orgId}`);
+}
+
 export default api;
