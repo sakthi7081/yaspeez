@@ -4,12 +4,20 @@ import { Alert, View } from 'react-native';
 import moment from 'moment';
 import CalendarStrip from 'react-native-calendar-strip';
 import { getUserEvents } from '../utils/api';
+import User from '../database/models/user';
 
 export default class ScheduleScreen extends React.Component {
   state = {dateSelected: new Date(), scheduledDates: [], events: [], markedDates: []};
 
   async componentDidMount() {
-    await getUserEvents(8)
+    const queryOptions = {
+      limit: 1,
+      order: 'id DESC'
+    };
+
+    let user = await User.query(queryOptions);
+    const {user_id} = user[0];
+    await getUserEvents(user_id)
       .then(({value}) => {
         let scheduledDates = [];
         let markedDates = [];

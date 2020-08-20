@@ -5,6 +5,7 @@ import * as Google from 'expo-google-app-auth';
 import * as Facebook from 'expo-facebook';
 import api from '../utils/api';
 import User from '../database/models/user';
+import { emailRegex } from '../utils/data';
 
 const {width} = Dimensions.get('window');
 
@@ -68,8 +69,9 @@ export default class AuthScreen extends React.Component {
     let userdata = {email: '', origin: '', id: '0', firstname: '', lastname: '', dob: '', age: '', gender: '', phonenumber: '', placeofbirth: '', address: '', ycity_id: '', pincode: '', yrole_id: '5', feeamount: '', paidcontribution: '', medicalcert: '', ismember: '', disciplines: '1', referralby: ''};
     const {navigation} = this.props;
     const {email, origin} = this.state;
+    if(emailRegex.test(email.toString().toLowerCase())) {
     this.setState({isLoading: true});
-    await api.post('custom/userreg', {...userdata, email, origin})
+      await api.post('custom/userreg', {...userdata, email, origin})
             .then(({data}) => {
               const {value} = data;
               const {otp, userid} = value;
@@ -83,6 +85,9 @@ export default class AuthScreen extends React.Component {
               console.log(e, 'err');
               this.setState({isLoading: false}, () => Alert.alert('Error', e.message));
             });
+    } else {
+      Alert.alert('Error', 'Email is required!');
+    }
   }
 
   handleChange = txt => this.setState({email: txt});

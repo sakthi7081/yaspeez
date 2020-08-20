@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://manimaran-001-site1.etempurl.com/'
+  baseURL: 'http://51.210.150.124:8010/'
 });
 
 const getMethod = async (url) => {

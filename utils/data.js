@@ -29,6 +29,8 @@ export const randomRating = (min, max) => randomFromInterval(min, max).toFixed(1
 
 const randomFromInterval = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
+export const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
 export const defaultAvatar = 'http://yaspeez.fourthapetech.com/dist/img/avatar5.png';
 export const noImgUrl = 'http://yaspeez.fourthapetech.com/content/images/no-image-png.png';
 
