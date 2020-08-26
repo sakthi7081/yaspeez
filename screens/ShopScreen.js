@@ -13,14 +13,33 @@ const blackTrans = '#00000050';
 const gray = '#eee';
 const white = '#fff';
 const black = '#000';
+
+import One from '../assets/images/shop/1.png';
+import Two from '../assets/images/shop/2.png';
+import Three from '../assets/images/shop/3.png';
+import Four from '../assets/images/shop/4.png';
+import Five from '../assets/images/shop/5.png';
  
 const { width } = Dimensions.get('window');
 const itemWidth = Math.round((width / 2));
 
 class ShopScreen extends React.Component {
-    gotoShopItem = () => {
+    gotoShopItem = item => {
         const { navigation } = this.props;
-        // navigation.navigate('ShopItem');
+        const { image, type, name, points, bgColor } = item
+        navigation.navigate('ShopItem', {
+            image, type, name, points, bgColor,
+            size: [{ text: 'S' }, { text: 'M' }, { text: 'L' }, { text: 'XL' }, { text: 'XXL' }],
+            quantite: [{ text: '1' }, { text: '2' }, { text: '3' }, { text: '4' }, { text: '5' }],
+            description: 'Occaecat laboris dolore irure ad. Ullamco et mollit id eu sint reprehenderit quis laboris velit duis magna mollit. Fugiat do adipisicing laboris elit commodo qui quis. Laboris consectetur proident esse magna amet ad. Cillum elit proident sunt ullamco sint duis sunt ea sunt sit laborum velit. Officia sint cupidatat culpa excepteur dolor. Quis excepteur esse do Lorem.',
+            details: [
+                'Design du collant classique',
+                'Forme etroite',
+                'Boxd delaille elastique',
+                'Logo orbitant en impresson coulchotee sur la lambre inferieue',
+                'Logo No.1 en impresson ',
+            ]
+        });
     }
 
     renderShopItems = (items) => {
@@ -28,9 +47,9 @@ class ShopScreen extends React.Component {
         return shopItems.map((value, index) => (
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} key={`shopItem_${index}`}>
                 {value.map((v, i) => (
-                    <TouchableOpacity style={{ flex: 1, width: itemWidth }} onPress={this.gotoShopItem} key={`shopItem_sub_${index}${i}`}>
+                    <TouchableOpacity style={{ flex: 1, width: itemWidth }} onPress={() => this.gotoShopItem(v)} key={`shopItem_sub_${index}${i}`}>
                         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', margin: 5, borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: gray }}>
-                            <ImageBackground source={{uri: `${v.image}?random=${index}${i}`}} style={{ width: '100%', height: 200, position: 'relative' }}>
+                            <ImageBackground source={v.image} style={{ width: '100%', height: 200, position: 'relative', backgroundColor: v.bgColor }} resizeMode='cover'>
                                 <View style={{ flexDirection: 'row', position: 'absolute', zIndex: 3, bottom: 55, left: 15 }}>
                                     <Text style={{ color: gray }}>{v.type}</Text>
                                 </View>
@@ -53,15 +72,25 @@ class ShopScreen extends React.Component {
     }
     
     render() {
-        let items = new Array(31).fill(
-            {image: 'https://picsum.photos/200/300', type: 'T-Shirt', name: 'Venom 18', 'points': '150'}
-        );
+        let items = [
+            {image: One, type: 'T-Shirt', name: 'Venom 18', points: '150', bgColor: `${gold}50`},
+            {image: Two, type: 'T-Shirt', name: 'Venom 18', points: '150', bgColor: `#FF69B450`},
+            {image: Three, type: 'T-Shirt', name: 'Venom 18', points: '150', bgColor: `#7FFFD450`},
+            {image: Four, type: 'T-Shirt', name: 'Venom 18', points: '150', bgColor: `#4169E150`},
+            {image: Five, type: 'T-Shirt', name: 'Venom 18', points: '150', bgColor: `#FF634750`},
+        ];
 
         return (
             <View style={{ flex:1 }}>
                 {/* <SportFilter hasCategories={true} /> */}
-                <View style={{backgroundColor: '#0d4ae8', borderBottomLeftRadius: 25, borderBottomRightRadius: 25, overflow: 'hidden'}}>
+                <View style={{backgroundColor: '#0d4ae8', borderBottomLeftRadius: 25, borderBottomRightRadius: 25, overflow: 'hidden', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row'}}>
                   <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 24, paddingVertical: 20, paddingHorizontal: 20}}>Shop</Text>
+                  <TouchableOpacity style={{paddingVertical: 20, paddingHorizontal: 20}}>
+                    <Icon name="shopping-cart" height={24} width={24} fill={white} />
+                    <View style={{backgroundColor: 'red', width: 16, height: 15, borderRadius: 10, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 10, top: 15}}>
+                        <Text style={{fontWeight: 'bold', color: white, fontSize: 10}}>4</Text>
+                    </View>
+                  </TouchableOpacity>
                 </View>
                 <ScrollView style={{ backgroundColor: white }} contentContainerStyle={{ flexGrow: 1 }}>
                     {this.renderShopItems(items)}

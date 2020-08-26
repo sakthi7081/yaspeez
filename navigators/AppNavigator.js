@@ -5,11 +5,11 @@ import { StyleSheet } from 'react-native';
 
 import ChatScreen from '../screens/ChatScreen';
 import PhotoScreen from '../screens/PhotoScreen';
-import ShopScreen from '../screens/ShopScreen';
 
 import MapNavigator from './MapNavigator';
 import ScheduleScreen from '../screens/ScheduleScreen';
 import AccountNavigator from './AccountNavigator';
+import ShopNavigator from './ShopNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,7 +28,7 @@ export default class AppNavigator extends React.Component {
         <Tab.Screen name="Chats" component={ChatScreen} options={{tabBarIcon: props => this.renderIcon(props, 'message-square')}} />
         <Tab.Screen name="Photos" component={ScheduleScreen} options={{tabBarIcon: props => this.renderIcon(props, 'calendar')}} />
         <Tab.Screen name="Map" component={MapNavigator} options={{tabBarIcon: props => this.renderIcon(props, 'map')}} />
-        <Tab.Screen name="Shop" component={ShopScreen} options={{tabBarIcon: props => this.renderIcon(props, 'shopping-bag')}} />
+        <Tab.Screen name="Shop" component={ShopNavigator} options={{tabBarIcon: props => this.renderIcon(props, 'shopping-bag')}} />
         <Tab.Screen name="Account" component={AccountNavigator} options={{tabBarIcon: props => this.renderIcon(props, 'person')}} />
       </Tab.Navigator>
     );
