@@ -3,13 +3,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Icon, Layout } from '@ui-kitten/components';
 import { StyleSheet } from 'react-native';
 
-import ChatScreen from '../screens/ChatScreen';
-import PhotoScreen from '../screens/PhotoScreen';
-
 import MapNavigator from './MapNavigator';
 import ScheduleScreen from '../screens/ScheduleScreen';
 import AccountNavigator from './AccountNavigator';
 import ShopNavigator from './ShopNavigator';
+import ChatNavigator from './ChatNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -25,7 +23,7 @@ export default class AppNavigator extends React.Component {
   render() {
     return (
       <Tab.Navigator initialRouteName="Map" tabBarOptions={{showLabel: false}}>
-        <Tab.Screen name="Chats" component={ChatScreen} options={{tabBarIcon: props => this.renderIcon(props, 'message-square')}} />
+        <Tab.Screen name="Chats" component={ChatNavigator} options={{tabBarIcon: props => this.renderIcon(props, 'message-square')}} />
         <Tab.Screen name="Photos" component={ScheduleScreen} options={{tabBarIcon: props => this.renderIcon(props, 'calendar')}} />
         <Tab.Screen name="Map" component={MapNavigator} options={{tabBarIcon: props => this.renderIcon(props, 'map')}} />
         <Tab.Screen name="Shop" component={ShopNavigator} options={{tabBarIcon: props => this.renderIcon(props, 'shopping-bag')}} />

@@ -8,11 +8,11 @@ const gray = '#ddd';
 class ChatItem extends React.Component {
     handlePress = () => {
         const { text, icon, name, nav } = this.props;
-        // nav.navigate('ChatItem', {
-        //     text: text,
-        //     icon: icon,
-        //     name: name
-        // });
+        nav.navigate('ChatItem', {
+            text: text,
+            icon: icon,
+            name: name
+        });
     }
 
     render() {
