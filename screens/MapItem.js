@@ -2,7 +2,8 @@ import React from 'react';
 import { Text, Layout, Button, Icon, Divider, List, ListItem } from '@ui-kitten/components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, Dimensions, ScrollView, View, Animated } from 'react-native';
-import { getOrg } from '../utils/api';
+import { getOrg, getOrgEvents } from '../utils/api';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const {width, height} = Dimensions.get('window');
 const CARD_WIDTH = width - 100;
@@ -12,7 +13,7 @@ const data = [
 ];
 
 export default class MapItemScreen extends React.Component {
-  state = {size: 100, scrollY: new Animated.Value(0), coaches: [], sports: [], email: '', number: ''};
+  state = {size: 100, scrollY: new Animated.Value(0), coaches: [], sports: [], email: '', number: '', eventslist: [], website: ''};
 
   handleBack = () => {
     const {navigation} = this.props;
@@ -49,7 +50,7 @@ export default class MapItemScreen extends React.Component {
     </Layout>
   );
 
-  renderContent = (description, email, number) => (
+  renderContent = (description, email, number, website) => (
     <Layout style={[styles.bgBlue, {marginHorizontal: 25}]}>
       <Divider style={styles.dividerStyle} />
       <Layout style={[styles.flexRow, styles.bgBlue, styles.aCenter, {justifyContent: 'flex-start'}]}>
@@ -59,6 +60,10 @@ export default class MapItemScreen extends React.Component {
       <Layout style={[styles.flexRow, styles.bgBlue, styles.aCenter, {justifyContent: 'flex-start'}]}>
         {this.renderIcon('smartphone-outline', 16, '#fff')}
         <Text style={[styles.subText, styles.subTextMargin]}>{number}</Text>
+      </Layout>
+      <Layout style={[styles.flexRow, styles.bgBlue, styles.aCenter, {justifyContent: 'flex-start'}]}>
+        {this.renderIcon('globe-outline', 16, '#fff')}
+        <Text style={[styles.subText, styles.subTextMargin]}>{website}</Text>
       </Layout>
       <Divider style={styles.dividerStyle} />
       <Text style={[styles.subText, styles.desc]} numberOfLines={3}>{description}</Text>
@@ -131,6 +136,30 @@ export default class MapItemScreen extends React.Component {
     </Layout>
   );
 
+  renderEvents = eventslist => (
+    <Layout style={[styles.trans]}>
+      <Text style={[styles.innerHeading, styles.wrapper, {marginBottom: 10}]} category={'h6'}>Events</Text>
+      <ScrollView horizontal scrollEventThrottle={1} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.endPadding} snapToInterval={CARD_WIDTH + 20} snapToAlignment={'center'}>
+        {eventslist.length === 0 && (
+          <Layout style={{marginHorizontal: 20}}>
+            <Text>No events available!</Text>
+          </Layout>
+        )}
+        {eventslist.map((event, i) => (
+          <TouchableOpacity key={`event-item-${i}`} onPress={() => this.gotoEventItem(event.id)} style={[styles.trans, styles.card, {flexDirection: 'column'}]}>
+            <Layout style={[styles.trans, styles.flexRow, {alignItems: 'center', width: CARD_WIDTH - 20, marginHorizontal: 5, borderBottomWidth: 1, borderBottomColor: '#cccccc50', paddingBottom: 5}]}>
+              <Text category={'h6'}>{event.name}</Text>
+            </Layout>
+            <Layout style={{marginHorizontal: 5, marginTop: 5}}>
+              <Text numberOfLines={1} category={'p1'}>Type: {event.thiseventfor}</Text>
+              <Text numberOfLines={1} category={'p1'}>Fees: {event.feesamount}</Text>
+            </Layout>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </Layout>
+  );
+
   handleScroll = Animated.event(
     [{
       nativeEvent: {contentOffset: {y: this.state.scrollY}},
@@ -138,15 +167,22 @@ export default class MapItemScreen extends React.Component {
     }]
   );
 
+  gotoEventItem = (eventID) => {
+    const {navigation} = this.props;
+    navigation.navigate('EventItem', {eventID});
+  }
+
   async componentDidMount() {
     const {route} = this.props;
     const {params} = route;
     const {item} = params;
     const {id} = item;
     let orgDetails = await getOrg(id);
+    // let eventDetails = await getOrgEvents(id);
+    // const {value} = eventDetails;
     const {data} = orgDetails;
-    const {sports, coaches, email, number} = data;
-    this.setState({sports, coaches, email, number});
+    const {sports, coaches, email, number, eventslist, website} = data;
+    this.setState({sports, coaches, email, number, eventslist, website});
   }
 
   render() {
@@ -185,7 +221,7 @@ export default class MapItemScreen extends React.Component {
       });
     };
 
-    const {sports, email, number, coaches} = this.state;
+    const {sports, email, number, coaches, eventslist, website} = this.state;
 
 
     return (
@@ -196,11 +232,12 @@ export default class MapItemScreen extends React.Component {
         <Animated.ScrollView style={{position: 'relative', zIndex: 10}} onScroll={this.handleScroll} scrollEventThrottle={16} overScrollMode={'never'}>
           <Layout style={[styles.bgBlue, styles.top]}>
             {this.renderSubHeader(rating, name, address, distance, metric)}
-            {this.renderContent(description, email, number)}
+            {this.renderContent(description, email, number, website)}
           </Layout>
           <Layout style={[styles.trans, {marginVertical: 15}]}>
             {this.renderCoaches(coaches)}
             {this.renderActivities(sports)}
+            {this.renderEvents(eventslist)}
             {this.renderReviews()}
           </Layout>
         </Animated.ScrollView>

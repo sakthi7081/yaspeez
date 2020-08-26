@@ -34,4 +34,16 @@ export const getOrg = async orgId => {
   return await getMethod(`organization/getorgnaization?id=${orgId}`);
 }
 
+export const getOrgEvents = async orgId => {
+  return await getMethod(`custom/getorgevents?id=${orgId}`);
+}
+
+export const getProfile = async userId => {
+  return await getMethod(`yusers/getprofile?id=${userId}`);
+}
+
+export const getOrgByPurpose = async purposeId => {
+  return await getMethod(`organization/orgroletype?id=${purposeId}`);
+}
+
 export default api;

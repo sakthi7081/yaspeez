@@ -1,15 +1,18 @@
 import React from 'react';
 import { Text, Layout, Icon, Input } from '@ui-kitten/components';
+import {CommonActions} from '@react-navigation/native';
 import MapView from "react-native-map-clustering";
 import {Marker} from 'react-native-maps';
 import { StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getAllOrganizations } from '../utils/api';
+import { getAllOrganizations, getOrgByPurpose } from '../utils/api';
+import SearchableDropdown from 'react-native-searchable-dropdown';
 import { markers, randomDistance, randomRating, noImgUrl } from '../utils/data';
 import { toFloat } from '../utils/functions';
 
 import mapMarker from '../assets/images/maps/map-marker.png';
 import CImage from '../components/CImage';
+import Purpose from '../database/models/purpose';
 
 const { width, height } = Dimensions.get('window');
 const CARD_HEIGHT = 100;
@@ -19,7 +22,7 @@ export default class MapScreen extends React.Component {
   state = {
     region: {
       latitude: 48.8647, longitude: 2.3490, latitudeDelta: 0.0922, longitudeDelta: 0.0421,
-    }, markers : markers, tracksViewChanges: true
+    }, markers : markers, tracksViewChanges: true, search: '', collection: [], data: []
   };
 
   handleAnimate = index => {
@@ -50,26 +53,51 @@ export default class MapScreen extends React.Component {
   handleImgErr = e => {
     console.log(e, 'err');
   }
+  
+  handleChange = query => {console.log(query);}
+
+  handleSelected = async (selected, name) => {
+    this.setState({[name]: selected});
+    await getOrgByPurpose(selected.id)
+              .then(({data}) => {
+                let mapData = [];
+                data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
+                this.setState({markers: mapData});
+              })
+              .catch(e => Alert.alert('Error', e.message));
+  };
 
   async componentDidMount() {
     const {region} = this.state;
     const {navigation} = this.props;
+    const collection = await Purpose.query();
+    this.setState({ collection, data: collection });
     await getAllOrganizations()
       .then(({data}) => {
         let mapData = [];
         data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
         this.setState({markers: mapData});
-        // navigation.reset({
-        //   index: 0,
-        //   routes: [{ name: 'MapScreen' }],
-        // });
+        navigation.dispatch(state => {
+          // Remove the home route from the stack
+          const routes = state.routes.filter(r => r.name !== 'Auth');
+          console.log(routes, 'routes');
+          return CommonActions.reset({
+            ...state,
+            routes,
+            index: routes.length - 1,
+          });
+          // CommonActions.reset({
+          //   index: 0,
+          //   routes: [{ name: 'MapScreen' }],
+          // })
+        });
         this.handleAnimate(0);
       })
       .catch(e => Alert.alert('Error', e.message));
   }
 
   render() {
-    const {region, markers, tracksViewChanges} = this.state;
+    const {region, markers, tracksViewChanges, search, data} = this.state;
     if(markers.length === 0)
       return null;
 
@@ -86,7 +114,24 @@ export default class MapScreen extends React.Component {
           ))}
         </MapView>
         <Layout style={[styles.overlayItem, styles.overlayTop]}>
-          <Input placeholder='Rechercher un lieu | un sport' style={styles.searchInput} accessoryLeft={() => this.renderIcon('search')} />
+          {/* <Input placeholder='Rechercher un lieu | un sport' style={styles.searchInput} accessoryLeft={() => this.renderIcon('search')} onFocus={this.handleFocusIn} onBlur={this.handleFocusOut} onChangeText={this.handleChangeText} value={search} /> */}
+          <SearchableDropdown
+            style={styles.selectOption}
+            textInputStyle={{marginHorizontal: 10, borderWidth: 1, borderRadius: 5, paddingHorizontal: 15, fontSize: 15, paddingVertical: 5, borderColor: '#e4e9f2', backgroundColor: '#f7f9fc', color: '#222b45'}}
+            containerStyle={{marginVertical: 5}}
+            itemStyle={{marginHorizontal: 5, paddingHorizontal: 10, paddingVertical: 8, borderBottomWidth: 1, borderColor: '#e4e9f2'}}
+            itemTextStyle={{fontSize: 15, color: '#222b45'}}
+            itemsContainerStyle={{marginHorizontal: 10, borderWidth: 1, borderRadius: 5, borderColor: '#e4e9f2', backgroundColor: '#fff'}}
+            onItemSelect={item => this.handleSelected(item, 'search')}
+            onTextChange={this.handleChange}
+            underlineColorAndroid="transparent"
+            placeholder="Rechercher un lieu | un sport"
+            placeholderTextColor='#222b4573'
+            multi={false}
+            resetValue={false}
+            items={data}
+            value={search && search.name}
+          />
         </Layout>
         <Layout style={styles.overlayItem}>
           <ScrollView horizontal scrollEventThrottle={1} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.endPadding} snapToInterval={CARD_WIDTH + 20} snapToAlignment={'center'} onScroll={this.handleScroll} >
@@ -169,5 +214,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'space-between',
     alignItems: 'flex-start'
+  }, selectOption: {
+    paddingHorizontal: 30, paddingVertical: 5,
   }
 });

@@ -49,10 +49,13 @@ export default class Navigation extends React.Component {
     await this.prepareResources();
   }
 
-  async componentDidUpdate() {
-    await this.performAPICalls();
-    let users = await User.query();
-    this.setState({ appIsReady: true, initScreen: users && users.length > 0 ? 'App' : 'Ad' });
+  async componentDidUpdate(prevState) {
+    console.log(prevState, this.state.appIsReady);
+    if(prevState && prevState.appIsReady && prevState.appIsReady !== this.state.appIsReady) {
+      await this.performAPICalls();
+      let users = await User.query();
+      this.setState({ appIsReady: true, initScreen: users && users.length > 0 ? 'App' : 'Ad' });
+    }
   }
 
   prepareResources = async () => {
@@ -75,7 +78,7 @@ export default class Navigation extends React.Component {
       states = await getAllStates().then(d => this.success(d)).catch(e => this.failure(e));
       purposes = await getAllPurposes().then(d => this.success(d)).catch(e => this.failure(e));
       await init(sports, states, purposes);
-      await AsyncStorage.setItem('@tablesCreated', '1')
+      await AsyncStorage.setItem('@tablesCreated', '1');
     }
   }
 
