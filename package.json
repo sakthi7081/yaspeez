@@ -20,8 +20,12 @@
     "@ui-kitten/eva-icons": "^5.0.0",
     "axios": "^0.19.2",
     "expo": "~38.0.8",
+    "expo-camera": "~8.3.1",
     "expo-facebook": "~8.2.1",
     "expo-google-app-auth": "^8.1.2",
+    "expo-image-crop": "^1.0.4",
+    "expo-image-manipulator": "~8.2.1",
+    "expo-image-picker": "~8.3.0",
     "expo-linear-gradient": "~8.2.1",
     "expo-splash-screen": "^0.3.1",
     "expo-sqlite": "~8.2.1",
@@ -33,6 +37,7 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-38.0.2.tar.gz",
     "react-native-calendar-strip": "^2.0.9",
     "react-native-gesture-handler": "~1.6.0",
+    "react-native-lightbox": "^0.8.1",
     "react-native-map-clustering": "^3.3.9",
     "react-native-maps": "0.27.1",
     "react-native-reanimated": "~1.9.0",
@@ -42,7 +47,9 @@
     "react-native-svg": "12.1.0",
     "react-native-swiper": "^1.6.0",
     "react-native-web": "~0.11.7",
-    "simple-react-validator": "^1.5.0"
+    "simple-react-validator": "^1.5.0",
+    "expo-av": "~8.2.1",
+    "react-native-webview": "9.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.6",

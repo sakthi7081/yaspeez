@@ -12,6 +12,10 @@ class ShopItemScreen extends React.Component {
         quantiteSelected: null
     }
 
+    goBack = () => this.props.navigation.goBack();
+
+    goToCartScreen = () => this.props.navigation.navigate('Cart');
+
     onSelect = (selected, selectedOption) => { this.setState({ [selected]: selectedOption }); };
 
     render() {
@@ -23,8 +27,13 @@ class ShopItemScreen extends React.Component {
         return (
             <View style={{ flex:1 }}>
                 <View style={{backgroundColor: '#0d4ae8', borderBottomLeftRadius: 25, borderBottomRightRadius: 25, overflow: 'hidden', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row'}}>
-                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 24, paddingVertical: 20, paddingHorizontal: 20}}>Shop</Text>
-                  <TouchableOpacity style={{paddingVertical: 20, paddingHorizontal: 20}}>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <TouchableOpacity onPress={this.goBack} style={{paddingVertical: 20, paddingHorizontal: 10}}>
+                        <Icon name="chevron-left" height={24} width={24} fill={white} />
+                    </TouchableOpacity>
+                    <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 24, paddingVertical: 20}}>Shop</Text>
+                  </View>
+                  <TouchableOpacity style={{paddingVertical: 20, paddingHorizontal: 20}} onPress={this.goToCartScreen}>
                     <Icon name="shopping-cart" height={24} width={24} fill={white} />
                     <View style={{backgroundColor: 'red', width: 16, height: 15, borderRadius: 10, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 10, top: 15}}>
                         <Text style={{fontWeight: 'bold', color: white, fontSize: 10}}>4</Text>

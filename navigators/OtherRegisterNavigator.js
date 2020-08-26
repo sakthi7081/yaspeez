@@ -10,7 +10,6 @@ const Stack = createStackNavigator();
 export default class OtherRegisterNavigator extends React.Component {
   componentDidMount() {
     const {route} = this.props;
-    console.log(route.params, 'roParams');
   }
 
   render() {

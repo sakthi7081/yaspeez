@@ -80,7 +80,6 @@ export default class MapScreen extends React.Component {
         navigation.dispatch(state => {
           // Remove the home route from the stack
           const routes = state.routes.filter(r => r.name !== 'Auth');
-          console.log(routes, 'routes');
           return CommonActions.reset({
             ...state,
             routes,

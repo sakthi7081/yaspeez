@@ -24,6 +24,8 @@ const { width } = Dimensions.get('window');
 const itemWidth = Math.round((width / 2));
 
 class ShopScreen extends React.Component {
+    goToCartScreen = () => this.props.navigation.navigate('Cart');
+
     gotoShopItem = item => {
         const { navigation } = this.props;
         const { image, type, name, points, bgColor } = item
@@ -85,7 +87,7 @@ class ShopScreen extends React.Component {
                 {/* <SportFilter hasCategories={true} /> */}
                 <View style={{backgroundColor: '#0d4ae8', borderBottomLeftRadius: 25, borderBottomRightRadius: 25, overflow: 'hidden', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row'}}>
                   <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 24, paddingVertical: 20, paddingHorizontal: 20}}>Shop</Text>
-                  <TouchableOpacity style={{paddingVertical: 20, paddingHorizontal: 20}}>
+                  <TouchableOpacity style={{paddingVertical: 20, paddingHorizontal: 20}} onPress={this.goToCartScreen}>
                     <Icon name="shopping-cart" height={24} width={24} fill={white} />
                     <View style={{backgroundColor: 'red', width: 16, height: 15, borderRadius: 10, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 10, top: 15}}>
                         <Text style={{fontWeight: 'bold', color: white, fontSize: 10}}>4</Text>

@@ -30,7 +30,6 @@ export default class OtherRegisterScreen extends React.Component {
 
   handleChange = query => {
     const {states, data} = this.state;
-    console.log(data, 'states');
     this.setState({query, data: states.filter(item => this.filter(item, query))})
   }
 

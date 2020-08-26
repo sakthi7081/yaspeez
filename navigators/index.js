@@ -50,7 +50,6 @@ export default class Navigation extends React.Component {
   }
 
   async componentDidUpdate(prevState) {
-    console.log(prevState, this.state.appIsReady);
     if(prevState && prevState.appIsReady && prevState.appIsReady !== this.state.appIsReady) {
       await this.performAPICalls();
       let users = await User.query();

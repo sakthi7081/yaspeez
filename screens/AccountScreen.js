@@ -2,11 +2,15 @@ import React from 'react';
 import { Text, Layout, Button, Icon } from '@ui-kitten/components';
 import {StyleSheet, View, TouchableOpacity, ImageBackground, Image, Dimensions, ScrollView} from 'react-native';
 import moment from 'moment';
+import Lightbox from 'react-native-lightbox';
+import { Video } from 'expo-av';
 import YasLogo from '../assets/splash.png';
 import { defaultAvatar, apiImg } from '../utils/data';
 import { listToMatrix } from '../utils/functions';
 import User from '../database/models/user';
 import { getProfile } from '../utils/api';
+import SampleVideo from '../assets/images/account/sample-video.mp4'
+import { LinearGradient } from 'expo-linear-gradient';
 
 const {width, height} = Dimensions.get('window');
 const CARD_WIDTH = width - 100;
@@ -18,6 +22,10 @@ export default class AccountScreen extends React.Component {
   getDesc = date => `${moment().diff(moment(date, 'dd-mm-yyyy'), 'years')} | ABONNE LE ${moment(date, 'dd-mm-yyyy').format('mm/yyyy')}`;
   
   renderIcon = name => <Icon name={name} fill={'#fff'} height={24} width={24} />
+
+  goToPhotoScreen = () => this.props.navigation.navigate('Photos');
+
+  goToEventScreen = events => this.props.navigation.navigate('EventsList', {events});
 
   renderHeader = (fname, lname, bornat) => (
     <ImageBackground source={YasLogo} imageStyle={{opacity: 0.2}} resizeMode={'contain'} style={styles.headerContainer}>
@@ -41,14 +49,49 @@ export default class AccountScreen extends React.Component {
       </View>
     </ImageBackground>);
 
+  renderContent = modalContent => modalContent;
+
   renderPhotos = () => (
     <View style={styles.usrImgContainer}>
-      <Text style={styles.innerHeading}>My Photos</Text>
+      <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+        <Text style={styles.innerHeading}>My Photos</Text>
+        <TouchableOpacity style={{marginRight: 5, flexDirection: 'row', alignItems: 'center'}} onPress={this.goToPhotoScreen}>
+          <Text style={{fontWeight: 'bold', color: '#0d4ae8', fontSize: 12}}>More</Text>
+          <Icon name="chevron-right" height={12} width={12} fill='#0d4ae8' />
+        </TouchableOpacity>
+      </View>
       {listToMatrix(new Array(9).fill(apiImg), 3).map((arr, i) => (
         <View key={`user-upld-row-${i}`} style={styles.usrImgRow}>
-          {arr.map((img, j) => (
-            <Image source={{uri: `${img}?random=${i}${j}${new Date().getTime()}`}} key={`user-upld-${i}${j}`} style={styles.usrImg} />
-          ))}
+          {arr.map((img, j) => {
+            let imge = `${img}?random=${i}${j}${new Date().getTime()}`;
+            let content = (<Image source={{uri: imge}} style={[styles.usrImg, {borderColor: '#eee', borderWidth: 1}]} />);
+            let modalContent = (<Image source={{uri: imge}} style={{height: 300, width: width, backgroundColor: '#ccc'}} />);
+            if(i === 2 && j === 2) {
+              modalContent = (<Video
+                source={SampleVideo}
+                rate={1.0}
+                volume={1.0}
+                isMuted={false}
+                resizeMode="cover"
+                shouldPlay
+                isLooping
+                style={{ width: width, height: 300 }} />);
+              content = (
+                <View style={[styles.usrImg, {justifyContent: 'center', alignItems: 'center'}]}>
+                  <LinearGradient colors={['#ffffff80', '#ffffff80']} style={[styles.usrImg]}>
+                    <Video source={SampleVideo} rate={1.0} volume={1.0} isMuted={false} resizeMode="cover" shouldPlay isLooping style={[styles.usrImg]} />
+                  </LinearGradient>
+                </View>
+              );
+            }
+            return (
+              <TouchableOpacity key={`user-upld-${i}${j}`}>
+                <Lightbox style={[styles.usrImgBox, styles.usrImg, {borderColor: '#eee', borderWidth: 1}]} swipeToDismiss={true} renderContent={() => this.renderContent(modalContent)}>
+                  {content}
+                </Lightbox>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       ))}
     </View>
@@ -56,7 +99,7 @@ export default class AccountScreen extends React.Component {
 
   renderEvents = eventslist => (
     <Layout style={[styles.trans]}>
-      <Text style={[styles.innerHeading, styles.wrapper, {marginBottom: 10}]} category={'h6'}>Events</Text>
+      <Text style={[styles.innerHeading, styles.wrapper, {marginLeft: 20}]} category={'h6'}>Events</Text>
       <ScrollView horizontal scrollEventThrottle={1} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.endPadding} snapToInterval={CARD_WIDTH + 20} snapToAlignment={'center'}>
         {eventslist.length === 0 && (
           <Layout style={{marginHorizontal: 20, marginBottom: 20}}>
@@ -83,6 +126,23 @@ export default class AccountScreen extends React.Component {
   goToAccountEdit = () => {
     const {navigation} = this.props;
     navigation.navigate('AccountEdit');
+  }
+
+  goToNotifications = () => {
+    const {navigation} = this.props;
+    navigation.navigate('Notifications');
+  }
+
+  goToOrders = () => {
+    const {navigation} = this.props;
+    navigation.navigate('Orders');
+  }
+
+  goToWebScreen = (name, url) => {
+    const {navigation} = this.props;
+    navigation.navigate('WebScreen', {
+      name, url
+    });
   }
 
   gotoEventItem = (eventID) => {
@@ -120,9 +180,90 @@ export default class AccountScreen extends React.Component {
     return (
       <Layout style={styles.container}>
         {this.renderHeader(fname, lname, bornat)}
-        {this.renderPhotos()}
+        <ScrollView>
+          <View style={{padding: 15}}>
+            <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+              <Icon name="person-outline" height={24} width={24} fill='#0d4ae8' />
+              <Text style={{marginLeft: 2, fontWeight: 'bold', fontSize: 24}}>Profile</Text>
+            </View>
+            <View style={{marginTop: 5}}>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}} onPress={this.goToPhotoScreen}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                  <Icon name="image-outline" height={20} width={20} fill="#00000080" />
+                  <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>Photos</Text>
+                </View>
+                <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
+              </TouchableOpacity>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}} onPress={() => this.goToEventScreen(eventslist)}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                  <Icon name="activity-outline" height={20} width={20} fill="#00000080" />
+                  <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>Events</Text>
+                </View>
+                <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
+              </TouchableOpacity>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}} onPress={this.goToNotifications}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                  <Icon name="bell-outline" height={20} width={20} fill="#00000080" />
+                  <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>Notifications</Text>
+                </View>
+                <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
+              </TouchableOpacity>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}} onPress={this.goToOrders}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                  <Icon name="shopping-bag-outline" height={20} width={20} fill="#00000080" />
+                  <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>Orders</Text>
+                </View>
+                <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
+              </TouchableOpacity>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                  <Icon name="log-out-outline" height={20} width={20} fill="#00000080" />
+                  <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>Logout</Text>
+                </View>
+                <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={{padding: 15}}>
+            <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+              <Icon name="browser-outline" height={24} width={24} fill='#0d4ae8' />
+              <Text style={{marginLeft: 2, fontWeight: 'bold', fontSize: 24}}>Company</Text>
+            </View>
+            <View style={{marginTop: 5}}>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}} onPress={() => this.goToWebScreen('About Us', 'https://www.yaspeez.fr/')}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                  <Icon name="info-outline" height={20} width={20} fill="#00000080" />
+                  <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>About Us</Text>
+                </View>
+                <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
+              </TouchableOpacity>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}} onPress={() => this.goToWebScreen('F.A.Q.', 'https://www.facebook.com/yaspeez/')}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                  <Icon name="question-mark-circle-outline" height={20} width={20} fill="#00000080" />
+                  <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>F.A.Q.</Text>
+                </View>
+                <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
+              </TouchableOpacity>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}} onPress={() => this.goToWebScreen('Terms & Condition', 'https://www.instagram.com/yaspeez/')}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                  <Icon name="book-outline" height={20} width={20} fill="#00000080" />
+                  <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>Terms & Conditions</Text>
+                </View>
+                <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
+              </TouchableOpacity>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}} onPress={() => this.goToWebScreen('Privacy Policies', 'https://www.linkedin.com/company/yaspeez')}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                  <Icon name="flag-outline" height={20} width={20} fill="#00000080" />
+                  <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>Privacy Policies</Text>
+                </View>
+                <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+        {/* {this.renderPhotos()}
         {this.renderEvents(eventslist)}
-        {this.renderInspirations()}
+        {this.renderInspirations()} */}
       </Layout>
     )
   }
@@ -141,11 +282,11 @@ const styles = StyleSheet.create({
   headerUserImg: {width: 70, height: 70, backgroundColor: '#fff', borderRadius: 50, marginBottom: 25},
   headerInfoBar: {flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between'},
   usrImgRow: {flexDirection: 'row'},
-  usrImg: {height: singleImgWidth, width: singleImgWidth, margin: 5, borderRadius: 10, borderWidth: 1, backgroundColor: '#eee'},
+  usrImgBox: {margin: 5, borderRadius: 10, borderWidth: 1, backgroundColor: '#eee', overflow: 'hidden'},
+  usrImg: {height: singleImgWidth, width: singleImgWidth},
   usrImgContainer: {padding: 15},
   innerHeading: {marginBottom: 5, marginLeft: 5, fontWeight: 'bold', fontSize: 18},
   trans: {backgroundColor: 'transparent'},
-  innerHeading: {fontWeight: 'bold'},
   wrapper: {marginHorizontal: 20, marginTop: 10},
   flexRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'},
   card: {paddingVertical: 10, paddingHorizontal: 5, elevation: 2, backgroundColor: "#FFF", marginHorizontal: 10, shadowColor: "#000", shadowRadius: 50, shadowOpacity: 0.8, shadowOffset: { x: 0, y: 0 }, width: CARD_WIDTH, overflow: "hidden", flexDirection: 'row', borderRadius: 10, justifyContent: 'space-between', alignItems: 'flex-start'},
