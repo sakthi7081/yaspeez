@@ -146,7 +146,7 @@ export default class MapItemScreen extends React.Component {
           </Layout>
         )}
         {eventslist.map((event, i) => (
-          <TouchableOpacity key={`event-item-${i}`} onPress={() => this.gotoEventItem(event.id)} style={[styles.trans, styles.card, {flexDirection: 'column'}]}>
+          <TouchableOpacity key={`event-item-${i}`} onPress={() => this.gotoEventItem(event.id, event.coachid)} style={[styles.trans, styles.card, {flexDirection: 'column'}]}>
             <Layout style={[styles.trans, styles.flexRow, {alignItems: 'center', width: CARD_WIDTH - 20, marginHorizontal: 5, borderBottomWidth: 1, borderBottomColor: '#cccccc50', paddingBottom: 5}]}>
               <Text category={'h6'}>{event.name}</Text>
             </Layout>
@@ -167,9 +167,9 @@ export default class MapItemScreen extends React.Component {
     }]
   );
 
-  gotoEventItem = (eventID) => {
+  gotoEventItem = (eventID, coachId) => {
     const {navigation} = this.props;
-    navigation.navigate('EventItem', {eventID});
+    navigation.navigate('EventItem', {eventID, coachId});
   }
 
   async componentDidMount() {

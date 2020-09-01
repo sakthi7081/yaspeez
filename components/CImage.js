@@ -12,7 +12,7 @@ export default class CImage extends Component {
     return (
       <Image
         style={[style, imgErr ? {backgroundColor: '#ccc'} : {}]}
-        source={!imgErr ? source : noImgUrl}
+        source={!imgErr && source.uri !== '' ? source : noImgUrl}
         onError={this.sourceError}
         resizeMode={resizeMode} />
     )

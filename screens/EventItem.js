@@ -1,16 +1,17 @@
 import React from 'react';
 import { Layout, Text, Icon } from '@ui-kitten/components';
 import moment from 'moment';
-import { getOrgEvents } from '../utils/api';
-import { View, StyleSheet, Image, Dimensions, ImageBackground } from 'react-native';
+import { getOrgEvents, postRegisterEvent } from '../utils/api';
+import { View, StyleSheet, Image, Dimensions, ImageBackground, Alert } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 import MapView from "react-native-map-clustering";
+import User from '../database/models/user';
 
 const {width} = Dimensions.get('window');
 
 export default class EventItem extends React.Component {
-  state = {BranchName: '', Coach: '', Description: '', EndDate: '', EventAt: '', EventName: '', EventType: '', FeeAmount: '', NoOfDays: '', NoOfPerson: '', OrganizationName: '', Recurrence: '', Remarks: '', SportName: '', StartDate: '', ThisEventFor: ''};
+  state = {BranchName: '', Coach: '', Description: '', EndDate: '', EventAt: '', EventName: '', EventType: '', FeeAmount: '', NoOfDays: '', NoOfPerson: '', OrganizationName: '', Recurrence: '', Remarks: '', SportName: '', StartDate: '', ThisEventFor: '', yEvent_ID: ''};
 
   handlePress = () => {
     console.log('btn pressed');
@@ -18,10 +19,34 @@ export default class EventItem extends React.Component {
 
   goBack = () => this.props.navigation.goBack();
 
-  goToSubscribe = (feeAmount, orgName, eventName) => {
+  goToSubscribe = async (feeAmount, orgName, eventName, yEvent_ID) => {
     const {navigation} = this.props;
-    navigation.navigate('Subscribe', {feeAmount: feeAmount, orgName: orgName, eventName: eventName});
+    const queryOptions = {
+      limit: 1,
+      order: 'id DESC'
+    };
+
+    let user = await User.query(queryOptions);
+    const {user_id} = user[0];
+    const data = {
+      "ID":"0",
+      "YEVENT_ID": yEvent_ID.toString(),
+      "YUSER_ID": user_id.toString(),
+      "REGISTERDATE": moment().format('YYYY-MM-DD hh:mm:ss'), //"2020-05-26 18:47:28.690",
+      "SPAYMENTSTATUS_ID": "1",
+      "SPAYMENTMETHOD_ID": "2",
+      "FEEAMOUNTPAID": feeAmount.toString(),
+      "YEVENTUSERSTATUS_ID": "1"
+    };
+    await postRegisterEvent(data)
+            .then(res => {
+              if(res.code == "200")
+                navigation.navigate('Subscribe', {feeAmount: feeAmount, orgName: orgName, eventName: eventName});
+            })
+            .catch(e => Alert('Error', e.messaage));
   }
+
+  goToProfile = profileId => this.props.navigation.navigate('Profile', {profileId});
 
   async componentDidMount() {
     const {route} = this.props;
@@ -30,12 +55,15 @@ export default class EventItem extends React.Component {
     let eventInfo = await getOrgEvents(eventID);
     const {value} = eventInfo;
     let eventData = value[0];
-    const {BranchName, Coach, Description, EndDate, EventAt, EventName, EventType, FeeAmount, NoOfDays, NoOfPerson, OrganizationName, Recurrence, Remarks, SportName, StartDate, ThisEventFor} = eventData;
-    this.setState({BranchName, Coach, Description, EndDate, EventAt, EventName, EventType, FeeAmount, NoOfDays, NoOfPerson, OrganizationName, Recurrence, Remarks, SportName, StartDate, ThisEventFor});
+    const {BranchName, Coach, Description, EndDate, EventAt, EventName, EventType, FeeAmount, NoOfDays, NoOfPerson, OrganizationName, Recurrence, Remarks, SportName, StartDate, ThisEventFor, yEvent_ID} = eventData;
+    this.setState({BranchName, Coach, Description, EndDate, EventAt, EventName, EventType, FeeAmount, NoOfDays, NoOfPerson, OrganizationName, Recurrence, Remarks, SportName, StartDate, ThisEventFor, yEvent_ID});
   }
 
   render() {
-    const {BranchName, Coach, Description, EndDate, EventAt, EventName, EventType, FeeAmount, NoOfDays, NoOfPerson, OrganizationName, Recurrence, Remarks, SportName, StartDate, ThisEventFor} = this.state;
+    const {route} = this.props;
+    const {params} = route;
+    const {coachId} = params;
+    const {BranchName, Coach, Description, EndDate, EventAt, EventName, EventType, FeeAmount, NoOfDays, NoOfPerson, OrganizationName, Recurrence, Remarks,  SportName, StartDate, ThisEventFor, yEvent_ID} = this.state;
     return (
       <Layout style={styles.container}>
         <View>
@@ -59,7 +87,7 @@ export default class EventItem extends React.Component {
               <Image source={{uri: `https://picsum.photos/100/100/?random=${new Date().getTime()}`}} style={{backgroundColor: '#888', borderRadius: 50, height: 50, width: 50, marginHorizontal: 15, marginRight: 10}} />
               <View style={{justifyContent: 'space-evenly', alignItems: 'flex-start'}}>
                 <Text style={{fontWeight: 'bold', color: '#888'}}>{Coach}</Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => this.goToProfile(coachId)}>
                   <Text style={{color: '#0d4ae8', fontWeight: 'bold', fontSize: 12}}>Voir le profil</Text>
                 </TouchableOpacity>
               </View>
@@ -102,7 +130,7 @@ export default class EventItem extends React.Component {
           </View>
         </ScrollView>
         <Layout style={styles.footer}>
-          <TouchableOpacity style={styles.btnContainer} onPress={() => this.goToSubscribe(FeeAmount, OrganizationName, EventName)}>
+          <TouchableOpacity style={styles.btnContainer} onPress={() => this.goToSubscribe(FeeAmount, OrganizationName, EventName, yEvent_ID)}>
             <Text style={[styles.white, styles.btnText]}>Subscribe</Text>
           </TouchableOpacity>
         </Layout>

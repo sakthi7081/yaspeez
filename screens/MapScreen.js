@@ -113,7 +113,6 @@ export default class MapScreen extends React.Component {
           ))}
         </MapView>
         <Layout style={[styles.overlayItem, styles.overlayTop]}>
-          {/* <Input placeholder='Rechercher un lieu | un sport' style={styles.searchInput} accessoryLeft={() => this.renderIcon('search')} onFocus={this.handleFocusIn} onBlur={this.handleFocusOut} onChangeText={this.handleChangeText} value={search} /> */}
           <SearchableDropdown
             style={styles.selectOption}
             textInputStyle={{marginHorizontal: 10, borderWidth: 1, borderRadius: 5, paddingHorizontal: 15, fontSize: 15, paddingVertical: 5, borderColor: '#e4e9f2', backgroundColor: '#f7f9fc', color: '#222b45'}}
@@ -155,9 +154,9 @@ export default class MapScreen extends React.Component {
             ))}
           </ScrollView>
         </Layout>
-        <LinearGradient
+        {/* <LinearGradient
           colors={['#00000040', '#ffffff00', '#ffffff00', '#ffffff00', '#ffffff00', '#ffffff00', '#ffffff00', '#00000090']}
-          style={{ position: 'absolute', width: width, height: height, top: 0, left: 0, zIndex: 5 }} />
+          style={{ position: 'absolute', width: width, height: height, top: 0, left: 0, zIndex: 5 }} /> */}
       </Layout>
     )
   }
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
   }, mapView: {
     flex: 1
   }, overlayTop: {
-    top: 10, left: 10, right: 10
+    top: 10, left: 10, right: 10, height: 50, overflow: 'hidden'
   }, overlayItem: {
     position: 'absolute', bottom: 30, left: 0, right: 0, zIndex: 10, backgroundColor: 'transparent'
   }, searchInput: {

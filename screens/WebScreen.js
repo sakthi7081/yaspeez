@@ -4,6 +4,8 @@ import { WebView } from 'react-native-webview';
 import { Icon, Text } from '@ui-kitten/components';
 
 export default class WebScreen extends React.Component {
+  goBack = () => this.props.navigation.goBack();
+
   render() {
     const {route} = this.props;
     const {params} = route;
@@ -12,7 +14,7 @@ export default class WebScreen extends React.Component {
       <View style={{flex: 1}}>
         <View style={{backgroundColor: '#0d4ae8', borderBottomLeftRadius: 25, borderBottomRightRadius: 25, overflow: 'hidden', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row'}}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <TouchableOpacity onPress={this.goBack} style={{paddingVertical: 20, paddingHorizontal: 10}}>
+            <TouchableOpacity onPress={this.goBack} style={{paddingVertical: 20, paddingHorizontal: 10}} onPress={this.goBack}>
               <Icon name="chevron-left" height={24} width={24} fill='#fff' />
             </TouchableOpacity>
             <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 24, paddingVertical: 20}}>{name}</Text>

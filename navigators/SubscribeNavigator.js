@@ -7,10 +7,12 @@ const Stack = createStackNavigator();
 
 export default class SubscribeNavigator extends React.Component {
   render() {
+    const {route} = this.props;
+    const {params} = route;
     return (
       <Stack.Navigator initialRouteName="Subscribe">
-        <Stack.Screen name="Subscribe" component={SubscribeScreen} options={{headerShown: false}} />
-        <Stack.Screen name="SubscribeSuccess" component={SubscribeSuccess} options={{headerShown: false}} />
+        <Stack.Screen name="Subscribe" component={SubscribeScreen} initialParams={{...params}} options={{headerShown: false}} />
+        <Stack.Screen name="SubscribeSuccess" component={SubscribeSuccess} initialParams={{...params}} options={{headerShown: false}} />
       </Stack.Navigator>
     );
   }

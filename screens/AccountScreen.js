@@ -159,9 +159,10 @@ export default class AccountScreen extends React.Component {
     let user = await User.query(queryOptions);
     const {address, birth_place, born_at, country_id, email, first_name, last_name, phone_no, pincode, pupose_id, referral, sport_id, state_id, user_id} = user[0];
     const profile = await getProfile(user_id);
-    console.log(profile, 'evrnt');
+    // console.log(profile, 'evrnt');
     const {data, status} = profile;
     const {events} = data[0];
+    // console.log(user_id, user[0], events, 'events');
     this.setState({
       fname: first_name, lname: last_name, email, phone: phone_no, bornat: born_at, address, pincode, referral, user_id, eventslist: status === 200 ? events : []
     });

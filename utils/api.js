@@ -10,6 +10,12 @@ const getMethod = async (url) => {
           .catch(e => e);
 };
 
+const postMethod = async (url, data) => {
+  return await api.post(url, data)
+          .then(res => res.data)
+          .catch(e => e);
+};
+
 export const getAllStates = async () => {
   return await getMethod('custom/getcities?countryid=66');
 };
@@ -44,6 +50,10 @@ export const getProfile = async userId => {
 
 export const getOrgByPurpose = async purposeId => {
   return await getMethod(`organization/orgroletype?id=${purposeId}`);
+}
+
+export const postRegisterEvent = async data => {
+  return await postMethod(`events/eventregister`, data);
 }
 
 export default api;
