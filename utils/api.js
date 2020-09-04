@@ -44,6 +44,10 @@ export const getOrgEvents = async orgId => {
   return await getMethod(`custom/getorgevents?id=${orgId}`);
 }
 
+export const getEventInfo = async orgId => {
+  return await getMethod(`Custom/GetEvent?id=${orgId}`);
+}
+
 export const getProfile = async userId => {
   return await getMethod(`yusers/getprofile?id=${userId}`);
 }

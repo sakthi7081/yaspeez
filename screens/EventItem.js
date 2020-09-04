@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Text, Icon } from '@ui-kitten/components';
 import moment from 'moment';
-import { getOrgEvents, postRegisterEvent } from '../utils/api';
+import { postRegisterEvent, getEventInfo } from '../utils/api';
 import { View, StyleSheet, Image, Dimensions, ImageBackground, Alert } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -52,9 +52,10 @@ export default class EventItem extends React.Component {
     const {route} = this.props;
     const {params} = route;
     const {eventID} = params;
-    let eventInfo = await getOrgEvents(eventID);
+    let eventInfo = await getEventInfo(eventID);
     const {value} = eventInfo;
     let eventData = value[0];
+    console.log(value, 'eventData');
     const {BranchName, Coach, Description, EndDate, EventAt, EventName, EventType, FeeAmount, NoOfDays, NoOfPerson, OrganizationName, Recurrence, Remarks, SportName, StartDate, ThisEventFor, yEvent_ID} = eventData;
     this.setState({BranchName, Coach, Description, EndDate, EventAt, EventName, EventType, FeeAmount, NoOfDays, NoOfPerson, OrganizationName, Recurrence, Remarks, SportName, StartDate, ThisEventFor, yEvent_ID});
   }

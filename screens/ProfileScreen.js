@@ -2,11 +2,24 @@ import React from 'react';
 import { View, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
 import { Icon, Text, Avatar } from '@ui-kitten/components';
 import { getProfile } from '../utils/api';
+import { defaultAvatar } from '../utils/data';
 
 export default class ProfileScreen extends React.Component {
   state = {profileInfo: null};
 
   goBack = () => this.props.navigation.goBack();
+
+  renderInfoItem = (info, icon) => {
+    if(!info)
+      return null;
+
+    return (
+      <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingVertical: 5}}>
+        <Icon name={icon} fill='#0d4ae8' height={24} width={24} />
+        <Text style={{marginLeft: 5}}>{info}</Text>
+      </View>
+    )
+  }
 
   async componentDidMount() {
     const {route} = this.props;
@@ -23,7 +36,7 @@ export default class ProfileScreen extends React.Component {
     if(profileInfo === null)
       return null;
 
-    // console.log(profileInfo, 'profileInfo');
+    console.log(profileInfo, 'profileInfo');
 
     const {address, city, dob, email, events, gender, img, ismember, lastname, name, phone, pinciode, placeofbirth} = profileInfo;
 
@@ -35,7 +48,7 @@ export default class ProfileScreen extends React.Component {
           </TouchableOpacity>
           <View style={{flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'space-between', marginTop: 80, paddingHorizontal: 20, paddingVertical: 5}}>
             <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 24}}>{name}</Text>
-            <Avatar source={{uri: img}} style={{height: 50, width: 50, backgroundColor: '#ccc'}} />
+            <Avatar source={{uri: img ? img : defaultAvatar}} style={{height: 50, width: 50, backgroundColor: '#ccc'}} />
           </View>
           {ismember && (
             <Text style={{paddingVertical: 10, paddingHorizontal: 20, color: '#ffffff70', fontSize: 14}}>{ismember ? 'Member' : ''}</Text>
@@ -43,34 +56,13 @@ export default class ProfileScreen extends React.Component {
         </ImageBackground>
         <ScrollView style={{backgroundColor: '#fff', flex: 1}}>
           <View style={{paddingVertical: 15, paddingHorizontal: 20}}>
-            {dob && (<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingVertical: 5}}>
-              <Icon name="calendar-outline" fill='#0d4ae8' height={24} width={24} />
-              <Text style={{marginLeft: 5}}>{dob}</Text>
-            </View>)}
-            {email && (<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingVertical: 5}}>
-              <Icon name="email-outline" fill='#0d4ae8' height={24} width={24} />
-              <Text style={{marginLeft: 5}}>{email}</Text>
-            </View>)}
-            {gender && (<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingVertical: 5}}>
-              <Icon name="radio-button-on" fill='#0d4ae8' height={24} width={24} />
-              <Text style={{marginLeft: 5}}>{gender}</Text>
-            </View>)}
-            {phone && (<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingVertical: 5}}>
-              <Icon name="smartphone-outline" fill='#0d4ae8' height={24} width={24} />
-              <Text style={{marginLeft: 5}}>{phone}</Text>
-            </View>)}
-            {address && (<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingVertical: 5}}>
-              <Icon name="flash-outline" fill='#0d4ae8' height={24} width={24} />
-              <Text style={{marginLeft: 5}}>{address}</Text>
-            </View>)}
-            {placeofbirth && (<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingVertical: 5}}>
-              <Icon name="pin-outline" fill='#0d4ae8' height={24} width={24} />
-              <Text style={{marginLeft: 5}}>{placeofbirth}</Text>
-            </View>)}
-            {pinciode && (<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingVertical: 5}}>
-              <Icon name="code-outline" fill='#0d4ae8' height={24} width={24} />
-              <Text style={{marginLeft: 5}}>{pinciode}</Text>
-            </View>)}
+            {this.renderInfoItem(dob, 'calendar-outline')}
+            {this.renderInfoItem(email, 'email-outline')}
+            {this.renderInfoItem(gender, 'radio-button-on')}
+            {this.renderInfoItem(phone, 'smartphone-outline')}
+            {this.renderInfoItem(address, 'flash-outline')}
+            {this.renderInfoItem(placeofbirth, 'pin-outline')}
+            {this.renderInfoItem(pinciode, 'code-outline')}
           </View>
         </ScrollView>
       </View>

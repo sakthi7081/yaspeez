@@ -14,6 +14,7 @@ import mapMarker from '../assets/images/maps/map-marker.png';
 import CImage from '../components/CImage';
 import Purpose from '../database/models/purpose';
 import Sport from '../database/models/sport';
+import ToastBar from '../components/SnackBar';
 
 const { width, height } = Dimensions.get('window');
 const CARD_HEIGHT = 100;
@@ -23,7 +24,7 @@ export default class MapScreen extends React.Component {
   state = {
     region: {
       latitude: 48.8647, longitude: 2.3490, latitudeDelta: 0.0922, longitudeDelta: 0.0421,
-    }, markers : markers, tracksViewChanges: true, search: '', collection: [], data: [], sportData: [], selectedIndex: null
+    }, markers : markers, tracksViewChanges: true, search: '', collection: [], data: [], sportData: [], selectedIndex: null, isSnackVisible: false, snackText: ''
   };
 
   handleAnimate = index => {
@@ -31,6 +32,8 @@ export default class MapScreen extends React.Component {
     let region = { latitude: markers[index].latitude, longitude: markers[index].longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 };
     this.mapView.animateToRegion(region, 500);
   }
+
+  closeSnack = () => this.setState({isSnackVisible: false, snackText: ''});
 
   handleScroll = ({nativeEvent}) => {
     const {markers} = this.state;
@@ -62,13 +65,13 @@ export default class MapScreen extends React.Component {
     this.setState({[name]: selected});
     await getOrgByPurpose(selected.sport_id)
               .then(({data}) => {
-                // console.log(data, 'dta');
                 let mapData = [];
                 if(data && data.length > 0) {
                   data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
                   this.setState({markers: mapData});
                 } else {
-                  Alert.alert('Info', 'No Data Available!');
+                  this.setState({isSnackVisible: true, snackText: 'Info: No data available!'});
+                  // Alert.alert('Info', 'No Data Available!');
                 }
               })
               .catch(e => Alert.alert('Error', e.message));
@@ -105,17 +108,24 @@ export default class MapScreen extends React.Component {
       await getOrgByPurpose(id)
             .then(({data}) => {
               let mapData = [];
-              data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
-              this.setState({markers: mapData});
+              if(data && data != 'No Data Found' && data.length > 0){
+                data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
+                this.setState({markers: mapData});
+              } else {
+                this.setState({isSnackVisible: true, snackText: 'Info: No data available!'});
+                // Alert.alert('Info', 'No data available!');
+              }
             })
             .catch(e => Alert.alert('Error', e.message));
     } else {
       await getAllOrganizations()
             .then(({data}) => {
               let mapData = [];
-              data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
-              this.setState({markers: mapData});
-              this.handleAnimate(0);
+              if(data && data.length > 0){
+                data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
+                this.setState({markers: mapData});
+                this.handleAnimate(0);
+              }
             })
             .catch(e => Alert.alert('Error', e.message));
     }
@@ -154,7 +164,7 @@ export default class MapScreen extends React.Component {
   }
 
   render() {
-    const {region, markers, tracksViewChanges, search, data, sportData, selectedIndex} = this.state;
+    const {region, markers, tracksViewChanges, search, data, sportData, selectedIndex, snackText, isSnackVisible} = this.state;
     if(markers.length === 0)
       return null;
 
@@ -190,7 +200,7 @@ export default class MapScreen extends React.Component {
               value={search && search.name}
             />
             <Select style={{flex: 1}} selectedIndex={selectedIndex} value={() => this.getIcon(selectedIndex && selectedIndex.row + 1)} onSelect={index => this.setSelectedIndex(index)}>
-              {data && data.map((info, i) => (
+              {data !== undefined && data !== null && data !== '' && data.map((info, i) => (
                 <SelectItem key={`select-sport-item-${i}`} style={{justifyContent: 'center', alignItems: 'center'}} accessoryLeft={() => this.getIcon(i + 1)} />
               ))}
               <SelectItem style={{justifyContent: 'center', alignItems: 'center'}} accessoryLeft={() => this.getIcon(4)} />
@@ -220,6 +230,12 @@ export default class MapScreen extends React.Component {
             ))}
           </ScrollView>
         </Layout>
+        <ToastBar
+          visible={isSnackVisible}
+          textMessage={snackText}
+          actionHandler={this.closeSnack}
+          actionText="Ok"
+        />
         {/* <LinearGradient
           colors={['#00000040', '#ffffff00', '#ffffff00', '#ffffff00', '#ffffff00', '#ffffff00', '#ffffff00', '#00000090']}
           style={{ position: 'absolute', width: width, height: height, top: 0, left: 0, zIndex: 5 }} /> */}

@@ -26,7 +26,7 @@ export default class MapItemScreen extends React.Component {
     <Layout style={[styles.bgBlue, styles.flexRow]}>
       <Button onPress={() => this.handleBack()} accessoryLeft={() => this.renderIcon('chevron-left', 24, '#fff')} appearance={'ghost'} style={styles.headerButton} />
       <Animated.View style={[styles.flexRow, styles.headerImage, {margin: 0}]}>
-        <Animated.Image source={{uri: `${image}?random=${id}`}} resizeMode='contain' resizeMethod={'scale'} style={[styles.headerImage, {position: 'relative', left: left, height: size}]} />
+        <Animated.Image source={{uri: `${image}?random=${id}`}} resizeMode='contain' resizeMethod={'scale'} style={[styles.headerImage, {position: 'relative', left: left, height: size, borderRadius: 15}]} />
         <Animated.Text numberOfLines={1} style={{color: '#fff', position: 'relative', left: -200, top: 14, fontWeight: 'bold', opacity: opacity}}>{name}</Animated.Text>
       </Animated.View>
       <Button accessoryLeft={() => this.renderIcon('share-outline', 24, '#fff')} appearance={'ghost'} style={styles.headerButton} />
@@ -194,8 +194,8 @@ export default class MapItemScreen extends React.Component {
     const imgHeight = () => {
       const {scrollY} = this.state;
       return scrollY.interpolate({
-        inputRange: [0, 50],
-        outputRange: [100, 40],
+        inputRange: [0, 100],
+        outputRange: [80, 40],
         extrapolate: 'clamp',
         useNativeDriver: true
       });
@@ -204,8 +204,8 @@ export default class MapItemScreen extends React.Component {
     const imgLeft = () => {
       const {scrollY} = this.state;
       return scrollY.interpolate({
-        inputRange: [0, 50],
-        outputRange: [-10, -100],
+        inputRange: [0, 100],
+        outputRange: [-10, -80],
         extrapolate: 'clamp',
         useNativeDriver: true
       });
@@ -214,7 +214,7 @@ export default class MapItemScreen extends React.Component {
     const textOpacity = () => {
       const {scrollY} = this.state;
       return scrollY.interpolate({
-        inputRange: [50, 50],
+        inputRange: [100, 100],
         outputRange: [0, 1],
         extrapolate: 'clamp',
         useNativeDriver: true
