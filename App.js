@@ -1,7 +1,8 @@
 import React from 'react';
 import * as eva from '@eva-design/eva';
-import { ApplicationProvider, IconRegistry, Layout, Text, Icon } from '@ui-kitten/components';
+import { ApplicationProvider, IconRegistry } from '@ui-kitten/components';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import Navigation from './navigators';
 
@@ -10,7 +11,9 @@ export default function App() {
     <>
       <IconRegistry icons={EvaIconsPack} />
       <ApplicationProvider {...eva} theme={eva.light}>
-        <Navigation />
+        {/* <KeyboardAwareScrollView> */}
+          <Navigation />
+        {/* </KeyboardAwareScrollView> */}
       </ApplicationProvider>
     </>
   );

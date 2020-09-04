@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Text, Layout, Icon, Input, Select, SelectItem } from '@ui-kitten/components';
 import {CommonActions} from '@react-navigation/native';
 import MapView from "react-native-map-clustering";
@@ -24,7 +24,7 @@ export default class MapScreen extends React.Component {
   state = {
     region: {
       latitude: 48.8647, longitude: 2.3490, latitudeDelta: 0.0922, longitudeDelta: 0.0421,
-    }, markers : markers, tracksViewChanges: true, search: '', collection: [], data: [], sportData: [], selectedIndex: null, isSnackVisible: false, snackText: ''
+    }, markers : markers, tracksViewChanges: true, search: '', collection: [], data: [], sportData: [], selectedIndex: null, isSnackVisible: false, snackText: '', resetValue: false, topHeight: 50
   };
 
   handleAnimate = index => {
@@ -58,17 +58,20 @@ export default class MapScreen extends React.Component {
     console.log(e, 'err');
   }
   
-  handleChange = query => {console.log(query);}
+  handleChange = query => {console.log(query); this.setState({topHeight: 40 + 115})}
 
   handleSelected = async (selected, name) => {
     // console.log(selected);
+    const {_scrollView} = this.refs;
     this.setState({[name]: selected});
     await getOrgByPurpose(selected.sport_id)
               .then(({data}) => {
                 let mapData = [];
-                if(data && data.length > 0) {
+                if(data && data != 'No Data Found' && data.length > 0){
                   data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
                   this.setState({markers: mapData});
+                  _scrollView.scrollTo({x: 0, y: 0, animated: true});
+                  this.handleAnimate(0);
                 } else {
                   this.setState({isSnackVisible: true, snackText: 'Info: No data available!'});
                   // Alert.alert('Info', 'No Data Available!');
@@ -94,6 +97,9 @@ export default class MapScreen extends React.Component {
   }
 
   setSelectedIndex = async index => {
+    // console.log(this.refs);
+    const {_scrollView} = this.refs;
+    _scrollView.scrollTo({x: 0, y: 0, animated: true});
     let id = 1;
     switch(index.row + 1) {
       case 3: id = 4;
@@ -111,6 +117,8 @@ export default class MapScreen extends React.Component {
               if(data && data != 'No Data Found' && data.length > 0){
                 data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
                 this.setState({markers: mapData});
+                _scrollView.scrollTo({x: 0, y: 0, animated: true});
+                this.handleAnimate(0);
               } else {
                 this.setState({isSnackVisible: true, snackText: 'Info: No data available!'});
                 // Alert.alert('Info', 'No data available!');
@@ -121,10 +129,14 @@ export default class MapScreen extends React.Component {
       await getAllOrganizations()
             .then(({data}) => {
               let mapData = [];
-              if(data && data.length > 0){
+              if(data && data != 'No Data Found' && data.length > 0){
                 data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
                 this.setState({markers: mapData});
+                _scrollView.scrollTo({x: 0, y: 0, animated: true});
                 this.handleAnimate(0);
+              } else {
+                this.setState({isSnackVisible: true, snackText: 'Info: No data available!'});
+                // Alert.alert('Info', 'No data available!');
               }
             })
             .catch(e => Alert.alert('Error', e.message));
@@ -133,7 +145,14 @@ export default class MapScreen extends React.Component {
     this.setState({selectedIndex: index});
   };
 
+  toggleReset = () => {
+    this.setState({resetValue: !this.state.resetValue, search: '', topHeight: 50}, () => {
+      this.setState({resetValue: !this.state.resetValue});
+    });
+  }
+
   async componentDidMount() {
+    const {_scrollView} = this.refs;
     const {region} = this.state;
     const {navigation} = this.props;
     const collection = await Purpose.query();
@@ -143,20 +162,21 @@ export default class MapScreen extends React.Component {
     await getAllOrganizations()
       .then(({data}) => {
         let mapData = [];
-        data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
-        this.setState({markers: mapData});
+        if(data && data != 'No Data Found' && data.length > 0){
+          data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
+          this.setState({markers: mapData});
+          _scrollView.scrollTo({x: 0, y: 0, animated: true});
+          this.handleAnimate(0);
+        } else {
+          this.setState({isSnackVisible: true, snackText: 'Info: No data available!'});
+        }
         navigation.dispatch(state => {
-          // Remove the home route from the stack
           const routes = state.routes.filter(r => r.name !== 'Auth');
           return CommonActions.reset({
             ...state,
             routes,
             index: routes.length - 1,
           });
-          // CommonActions.reset({
-          //   index: 0,
-          //   routes: [{ name: 'MapScreen' }],
-          // })
         });
         this.handleAnimate(0);
       })
@@ -164,7 +184,7 @@ export default class MapScreen extends React.Component {
   }
 
   render() {
-    const {region, markers, tracksViewChanges, search, data, sportData, selectedIndex, snackText, isSnackVisible} = this.state;
+    const {region, markers, tracksViewChanges, search, data, sportData, selectedIndex, snackText, isSnackVisible, resetValue, topHeight} = this.state;
     if(markers.length === 0)
       return null;
 
@@ -180,35 +200,39 @@ export default class MapScreen extends React.Component {
             </Marker>
           ))}
         </MapView>
-        <Layout style={[styles.overlayItem, styles.overlayTop]}>
-          <View style={styles.selectOption}>
-            <SearchableDropdown
-              style={{}}
-              textInputStyle={{marginHorizontal: 10, borderWidth: 1, borderRadius: 5, paddingHorizontal: 15, fontSize: 15, paddingVertical: 5, borderColor: '#e4e9f2', backgroundColor: '#f7f9fc', color: '#222b45'}}
-              containerStyle={{}}
-              itemStyle={{marginHorizontal: 5, paddingHorizontal: 10, paddingVertical: 8, borderBottomWidth: 1, borderColor: '#e4e9f2'}}
-              itemTextStyle={{fontSize: 15, color: '#222b45'}}
-              itemsContainerStyle={{marginHorizontal: 10, borderWidth: 1, borderRadius: 5, borderColor: '#e4e9f2', backgroundColor: '#fff'}}
-              onItemSelect={item => this.handleSelected(item, 'search')}
-              onTextChange={this.handleChange}
-              underlineColorAndroid="transparent"
-              placeholder="Rechercher un lieu | un sport"
-              placeholderTextColor='#222b4573'
-              multi={false}
-              resetValue={false}
-              items={sportData}
-              value={search && search.name}
-            />
-            <Select style={{flex: 1}} selectedIndex={selectedIndex} value={() => this.getIcon(selectedIndex && selectedIndex.row + 1)} onSelect={index => this.setSelectedIndex(index)}>
+        <View style={[styles.overlayItem, styles.overlayTop, {height: topHeight}]}>
+          <View style={[styles.selectOption, {flex: 1}]}>
+            <View style={{flex: 1, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 2.5}}>
+              <SearchableDropdown
+                textInputStyle={{borderWidth: 0, borderTopLeftRadius: 5, borderBottomLeftRadius: 5, paddingHorizontal: 15, fontSize: 15, paddingVertical: 5, borderColor: '#e4e9f2', backgroundColor: '#f7f9fc', color: '#222b45'}}
+                containerStyle={{maxHeight: 115, flex: 1}}
+                itemStyle={{marginHorizontal: 5, paddingHorizontal: 10, paddingVertical: 8, borderBottomWidth: 1, borderColor: '#e4e9f2'}}
+                itemTextStyle={{fontSize: 15, color: '#222b45'}}
+                itemsContainerStyle={{borderWidth: 1, borderRadius: 5, borderColor: '#e4e9f2', backgroundColor: '#fff'}}
+                onItemSelect={item => this.handleSelected(item, 'search')}
+                onTextChange={this.handleChange}
+                underlineColorAndroid="transparent"
+                placeholder="Rechercher un lieu | un sport"
+                placeholderTextColor='#222b4573'
+                multi={false}
+                resetValue={resetValue}
+                items={!resetValue ? sportData : []}
+                value={search?.name}
+              />
+              <TouchableOpacity style={{width: 32, height: 38, backgroundColor: '#000', borderTopRightRadius: 5, borderBottomRightRadius: 5, justifyContent: 'center', alignItems: 'center'}} onPress={() => this.toggleReset()}>
+                {this.renderIcon('close-outline')}
+              </TouchableOpacity>
+            </View>
+            <Select style={{width: 70, marginLeft: 2.5}} selectedIndex={selectedIndex} value={() => this.getIcon(selectedIndex && selectedIndex.row + 1)} onSelect={index => this.setSelectedIndex(index)}>
               {data !== undefined && data !== null && data !== '' && data.map((info, i) => (
                 <SelectItem key={`select-sport-item-${i}`} style={{justifyContent: 'center', alignItems: 'center'}} accessoryLeft={() => this.getIcon(i + 1)} />
               ))}
               <SelectItem style={{justifyContent: 'center', alignItems: 'center'}} accessoryLeft={() => this.getIcon(4)} />
             </Select>
           </View>
-        </Layout>
-        <Layout style={styles.overlayItem}>
-          <ScrollView horizontal scrollEventThrottle={1} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.endPadding} snapToInterval={CARD_WIDTH + 20} snapToAlignment={'center'} onScroll={this.handleScroll} >
+        </View>
+        <View style={styles.overlayItem}>
+          <ScrollView horizontal scrollEventThrottle={1} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.endPadding} snapToInterval={CARD_WIDTH + 20} snapToAlignment={'center'} ref={'_scrollView'} onScroll={this.handleScroll} >
             {markers.map(({image, name, description, id, distance, metric, rating, address}, index) => (
               <TouchableOpacity key={`card-item-${index}-${id}`} style={styles.card} onPress={() => this.gotoMapItem({image, name, description, id, distance, metric, rating, address})}>
                 <CImage source={{uri: `${image}`}} noImgUrl={{uri: noImgUrl}} resizeMode='contain' style={styles.cardImage} />
@@ -229,7 +253,7 @@ export default class MapScreen extends React.Component {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </Layout>
+        </View>
         <ToastBar
           visible={isSnackVisible}
           textMessage={snackText}

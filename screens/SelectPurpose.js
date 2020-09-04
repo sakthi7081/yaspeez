@@ -79,7 +79,7 @@ export default class SelectPurpose extends React.Component {
             <SearchableDropdown
               style={styles.selectOption}
               textInputStyle={{marginHorizontal: 30, borderWidth: 1, borderRadius: 5, paddingHorizontal: 15, fontSize: 15, paddingVertical: 5, borderColor: '#e4e9f2', backgroundColor: '#f7f9fc', color: '#222b45'}}
-              containerStyle={{marginVertical: 5}}
+              containerStyle={{marginVertical: 5, maxHeight: 115}}
               itemStyle={{marginHorizontal: 5, paddingHorizontal: 10, paddingVertical: 8, borderBottomWidth: 1, borderColor: '#e4e9f2'}}
               itemTextStyle={{fontSize: 15, color: '#222b45'}}
               itemsContainerStyle={{marginHorizontal: 30, borderWidth: 1, borderRadius: 5, borderColor: '#e4e9f2'}}
