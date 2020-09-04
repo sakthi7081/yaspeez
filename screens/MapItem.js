@@ -235,9 +235,9 @@ export default class MapItemScreen extends React.Component {
             {this.renderContent(description, email, number, website)}
           </Layout>
           <Layout style={[styles.trans, {marginVertical: 15}]}>
-            {this.renderCoaches(coaches)}
-            {this.renderActivities(sports)}
-            {this.renderEvents(eventslist)}
+            {this.renderCoaches(coaches ? coaches : [])}
+            {this.renderActivities(sports ? sports : [])}
+            {this.renderEvents(eventslist ? eventslist : [])}
             {this.renderReviews()}
           </Layout>
         </Animated.ScrollView>

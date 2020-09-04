@@ -52,6 +52,10 @@ export const getOrgByPurpose = async purposeId => {
   return await getMethod(`organization/orgroletype?id=${purposeId}`);
 }
 
+export const getOrgBySport = async sportId => {
+  return await getMethod(`Organization/SportOrg?id=${sportId}`);
+}
+
 export const postRegisterEvent = async data => {
   return await postMethod(`events/eventregister`, data);
 }

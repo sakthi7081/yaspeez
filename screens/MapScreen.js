@@ -1,9 +1,9 @@
 import React from 'react';
-import { Text, Layout, Icon, Input } from '@ui-kitten/components';
+import { Text, Layout, Icon, Input, Select, SelectItem } from '@ui-kitten/components';
 import {CommonActions} from '@react-navigation/native';
 import MapView from "react-native-map-clustering";
 import {Marker} from 'react-native-maps';
-import { StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, Alert } from 'react-native';
+import { StyleSheet, Image, View, TouchableOpacity, ScrollView, Dimensions, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getAllOrganizations, getOrgByPurpose } from '../utils/api';
 import SearchableDropdown from 'react-native-searchable-dropdown';
@@ -13,6 +13,7 @@ import { toFloat } from '../utils/functions';
 import mapMarker from '../assets/images/maps/map-marker.png';
 import CImage from '../components/CImage';
 import Purpose from '../database/models/purpose';
+import Sport from '../database/models/sport';
 
 const { width, height } = Dimensions.get('window');
 const CARD_HEIGHT = 100;
@@ -22,7 +23,7 @@ export default class MapScreen extends React.Component {
   state = {
     region: {
       latitude: 48.8647, longitude: 2.3490, latitudeDelta: 0.0922, longitudeDelta: 0.0421,
-    }, markers : markers, tracksViewChanges: true, search: '', collection: [], data: []
+    }, markers : markers, tracksViewChanges: true, search: '', collection: [], data: [], sportData: [], selectedIndex: null
   };
 
   handleAnimate = index => {
@@ -57,21 +58,78 @@ export default class MapScreen extends React.Component {
   handleChange = query => {console.log(query);}
 
   handleSelected = async (selected, name) => {
+    // console.log(selected);
     this.setState({[name]: selected});
-    await getOrgByPurpose(selected.id)
+    await getOrgByPurpose(selected.sport_id)
               .then(({data}) => {
+                // console.log(data, 'dta');
                 let mapData = [];
-                data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
-                this.setState({markers: mapData});
+                if(data && data.length > 0) {
+                  data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
+                  this.setState({markers: mapData});
+                } else {
+                  Alert.alert('Info', 'No Data Available!');
+                }
               })
               .catch(e => Alert.alert('Error', e.message));
+  };
+
+  getIcon = purpose_id => {
+    // if(!purpose_id)
+    //   return <View />;
+    // console.log(purpose_id, 'purpose_id')
+    let image = require('../assets/images/maps/user.png');
+    switch(purpose_id) {
+      case 3: image = require('../assets/images/maps/dumbell.png');
+              break;
+      case 2: image = require('../assets/images/maps/people.png');
+              break;
+      case 1: image = require('../assets/images/maps/whistle.png');
+              break;
+    }
+    return <Image source={image} style={{height: 24, width: 24, alignSelf: 'center'}} />
+  }
+
+  setSelectedIndex = async index => {
+    let id = 1;
+    switch(index.row + 1) {
+      case 3: id = 4;
+              break;
+      case 2: id = 3;
+              break;
+      case 1: id = 2;
+              break;
+    }
+    // console.log(id, '__id');
+    if(id !== 1) {
+      await getOrgByPurpose(id)
+            .then(({data}) => {
+              let mapData = [];
+              data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
+              this.setState({markers: mapData});
+            })
+            .catch(e => Alert.alert('Error', e.message));
+    } else {
+      await getAllOrganizations()
+            .then(({data}) => {
+              let mapData = [];
+              data.map(({lat, lng, name, desc, img, id, address}) => mapData.push({latitude: toFloat(lat), longitude: toFloat(lng), name: name, rating: randomRating(1, 5), distance: randomDistance(100, 700), metric: 'm', description: desc, image: img, id, address}));
+              this.setState({markers: mapData});
+              this.handleAnimate(0);
+            })
+            .catch(e => Alert.alert('Error', e.message));
+    }
+
+    this.setState({selectedIndex: index});
   };
 
   async componentDidMount() {
     const {region} = this.state;
     const {navigation} = this.props;
     const collection = await Purpose.query();
-    this.setState({ collection, data: collection });
+    const sportsCollection = await Sport.query();
+    const dCollection = collection.map(info => ({...info, icon: this.getIcon(info.id)}));
+    this.setState({ collection, data: dCollection, sportData: sportsCollection });
     await getAllOrganizations()
       .then(({data}) => {
         let mapData = [];
@@ -96,7 +154,7 @@ export default class MapScreen extends React.Component {
   }
 
   render() {
-    const {region, markers, tracksViewChanges, search, data} = this.state;
+    const {region, markers, tracksViewChanges, search, data, sportData, selectedIndex} = this.state;
     if(markers.length === 0)
       return null;
 
@@ -113,23 +171,31 @@ export default class MapScreen extends React.Component {
           ))}
         </MapView>
         <Layout style={[styles.overlayItem, styles.overlayTop]}>
-          <SearchableDropdown
-            style={styles.selectOption}
-            textInputStyle={{marginHorizontal: 10, borderWidth: 1, borderRadius: 5, paddingHorizontal: 15, fontSize: 15, paddingVertical: 5, borderColor: '#e4e9f2', backgroundColor: '#f7f9fc', color: '#222b45'}}
-            containerStyle={{marginVertical: 5}}
-            itemStyle={{marginHorizontal: 5, paddingHorizontal: 10, paddingVertical: 8, borderBottomWidth: 1, borderColor: '#e4e9f2'}}
-            itemTextStyle={{fontSize: 15, color: '#222b45'}}
-            itemsContainerStyle={{marginHorizontal: 10, borderWidth: 1, borderRadius: 5, borderColor: '#e4e9f2', backgroundColor: '#fff'}}
-            onItemSelect={item => this.handleSelected(item, 'search')}
-            onTextChange={this.handleChange}
-            underlineColorAndroid="transparent"
-            placeholder="Rechercher un lieu | un sport"
-            placeholderTextColor='#222b4573'
-            multi={false}
-            resetValue={false}
-            items={data}
-            value={search && search.name}
-          />
+          <View style={styles.selectOption}>
+            <SearchableDropdown
+              style={{}}
+              textInputStyle={{marginHorizontal: 10, borderWidth: 1, borderRadius: 5, paddingHorizontal: 15, fontSize: 15, paddingVertical: 5, borderColor: '#e4e9f2', backgroundColor: '#f7f9fc', color: '#222b45'}}
+              containerStyle={{}}
+              itemStyle={{marginHorizontal: 5, paddingHorizontal: 10, paddingVertical: 8, borderBottomWidth: 1, borderColor: '#e4e9f2'}}
+              itemTextStyle={{fontSize: 15, color: '#222b45'}}
+              itemsContainerStyle={{marginHorizontal: 10, borderWidth: 1, borderRadius: 5, borderColor: '#e4e9f2', backgroundColor: '#fff'}}
+              onItemSelect={item => this.handleSelected(item, 'search')}
+              onTextChange={this.handleChange}
+              underlineColorAndroid="transparent"
+              placeholder="Rechercher un lieu | un sport"
+              placeholderTextColor='#222b4573'
+              multi={false}
+              resetValue={false}
+              items={sportData}
+              value={search && search.name}
+            />
+            <Select style={{flex: 1}} selectedIndex={selectedIndex} value={() => this.getIcon(selectedIndex && selectedIndex.row + 1)} onSelect={index => this.setSelectedIndex(index)}>
+              {data && data.map((info, i) => (
+                <SelectItem key={`select-sport-item-${i}`} style={{justifyContent: 'center', alignItems: 'center'}} accessoryLeft={() => this.getIcon(i + 1)} />
+              ))}
+              <SelectItem style={{justifyContent: 'center', alignItems: 'center'}} accessoryLeft={() => this.getIcon(4)} />
+            </Select>
+          </View>
         </Layout>
         <Layout style={styles.overlayItem}>
           <ScrollView horizontal scrollEventThrottle={1} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.endPadding} snapToInterval={CARD_WIDTH + 20} snapToAlignment={'center'} onScroll={this.handleScroll} >
@@ -168,7 +234,7 @@ const styles = StyleSheet.create({
   }, mapView: {
     flex: 1
   }, overlayTop: {
-    top: 10, left: 10, right: 10, height: 50, overflow: 'hidden'
+    top: 10, left: 10, right: 10, overflow: 'hidden'
   }, overlayItem: {
     position: 'absolute', bottom: 30, left: 0, right: 0, zIndex: 10, backgroundColor: 'transparent'
   }, searchInput: {
@@ -213,6 +279,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start'
   }, selectOption: {
-    paddingHorizontal: 30, paddingVertical: 5,
+    paddingHorizontal: 5, paddingVertical: 5, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start',
   }
 });
