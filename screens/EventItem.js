@@ -41,7 +41,7 @@ export default class EventItem extends React.Component {
     await postRegisterEvent(data)
             .then(res => {
               if(res.code == "200")
-                navigation.navigate('Subscribe', {feeAmount: feeAmount, orgName: orgName, eventName: eventName});
+                navigation.navigate('Subscribe', {feeAmount: feeAmount, orgName: orgName, eventName: eventName, user_id: user_id});
             })
             .catch(e => Alert('Error', e.messaage));
   }
