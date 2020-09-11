@@ -15,6 +15,7 @@ import CImage from '../components/CImage';
 import Purpose from '../database/models/purpose';
 import Sport from '../database/models/sport';
 import ToastBar from '../components/SnackBar';
+import Animated from 'react-native-reanimated';
 
 const { width, height } = Dimensions.get('window');
 const CARD_HEIGHT = 100;
@@ -58,7 +59,7 @@ export default class MapScreen extends React.Component {
     console.log(e, 'err');
   }
   
-  handleChange = query => {console.log(query); this.setState({topHeight: 40 + 115})}
+  handleChange = query => {console.log(query); this.setState({topHeight: 115})}
 
   handleSelected = async (selected, name) => {
     // console.log(selected);
@@ -145,11 +146,12 @@ export default class MapScreen extends React.Component {
     this.setState({selectedIndex: index});
   };
 
-  toggleReset = () => {
-    this.setState({resetValue: !this.state.resetValue, search: '', topHeight: 50}, () => {
-      this.setState({resetValue: !this.state.resetValue});
-    });
-  }
+  // toggleReset = () => {
+  //   this.setSelectedIndex(4);
+  //   this.setState({resetValue: !this.state.resetValue, search: '', topHeight: 50}, () => {
+  //     this.setState({resetValue: !this.state.resetValue});
+  //   });
+  // }
 
   async componentDidMount() {
     const {_scrollView} = this.refs;
@@ -185,6 +187,17 @@ export default class MapScreen extends React.Component {
 
   render() {
     const {region, markers, tracksViewChanges, search, data, sportData, selectedIndex, snackText, isSnackVisible, resetValue, topHeight} = this.state;
+
+    // const topHeightD = () => {
+    //   const {topHeight} = this.state;
+    //   return topHeight.interpolate({
+    //     inputRange: [50, 115],
+    //     outputRange: [50, 115],
+    //     extrapolate: 'clamp',
+    //     useNativeDriver: true
+    //   });
+    // };
+
     if(markers.length === 0)
       return null;
 
@@ -200,7 +213,7 @@ export default class MapScreen extends React.Component {
             </Marker>
           ))}
         </MapView>
-        <View style={[styles.overlayItem, styles.overlayTop, {height: topHeight}]}>
+        <Animated.View style={[styles.overlayItem, styles.overlayTop, {height: topHeight}]}>
           <View style={[styles.selectOption, {flex: 1}]}>
             <View style={{flex: 1, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-start', marginRight: 2.5}}>
               <SearchableDropdown
@@ -219,9 +232,9 @@ export default class MapScreen extends React.Component {
                 items={!resetValue ? sportData : []}
                 value={search?.name}
               />
-              <TouchableOpacity style={{width: 32, height: 38, backgroundColor: '#000', borderTopRightRadius: 5, borderBottomRightRadius: 5, justifyContent: 'center', alignItems: 'center'}} onPress={() => this.toggleReset()}>
+              {/* <TouchableOpacity style={{width: 32, height: 38, backgroundColor: '#000', borderTopRightRadius: 5, borderBottomRightRadius: 5, justifyContent: 'center', alignItems: 'center'}} onPress={() => this.toggleReset()}>
                 {this.renderIcon('close-outline')}
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             <Select style={{width: 70, marginLeft: 2.5}} selectedIndex={selectedIndex} value={() => this.getIcon(selectedIndex && selectedIndex.row + 1)} onSelect={index => this.setSelectedIndex(index)}>
               {data !== undefined && data !== null && data !== '' && data.map((info, i) => (
@@ -230,7 +243,7 @@ export default class MapScreen extends React.Component {
               <SelectItem style={{justifyContent: 'center', alignItems: 'center'}} accessoryLeft={() => this.getIcon(4)} />
             </Select>
           </View>
-        </View>
+        </Animated.View>
         <View style={styles.overlayItem}>
           <ScrollView horizontal scrollEventThrottle={1} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.endPadding} snapToInterval={CARD_WIDTH + 20} snapToAlignment={'center'} ref={'_scrollView'} onScroll={this.handleScroll} >
             {markers.map(({image, name, description, id, distance, metric, rating, address}, index) => (

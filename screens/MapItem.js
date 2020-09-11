@@ -195,7 +195,7 @@ export default class MapItemScreen extends React.Component {
       const {scrollY} = this.state;
       return scrollY.interpolate({
         inputRange: [0, 100],
-        outputRange: [80, 40],
+        outputRange: [100, 40],
         extrapolate: 'clamp',
         useNativeDriver: true
       });
@@ -205,7 +205,7 @@ export default class MapItemScreen extends React.Component {
       const {scrollY} = this.state;
       return scrollY.interpolate({
         inputRange: [0, 100],
-        outputRange: [-10, -80],
+        outputRange: [-10, -100],
         extrapolate: 'clamp',
         useNativeDriver: true
       });
