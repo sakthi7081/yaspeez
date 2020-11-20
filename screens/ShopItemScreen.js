@@ -1,10 +1,30 @@
 import React from 'react';
 import { View, ImageBackground, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Icon, Select } from '@ui-kitten/components';
+import { Text, Icon, Select, SelectItem } from '@ui-kitten/components';
+import { noImgUrl } from '../utils/data';
 
 const gold = '#F9A602';
 const gray = '#eee';
 const white = '#fff';
+
+class ShopItem extends React.Component {
+    state = {showDefault: false};
+
+    onError = () => this.setState({showDefault: true});
+
+    render() {
+        const {image, bgColor} = this.props;
+        const {showDefault} = this.state;
+        const imgSource = {uri: showDefault ? noImgUrl : image};
+        const resizeMode = showDefault ? 'contain' : 'cover';
+        
+        return (
+            <ImageBackground source={imgSource} style={{ width: '100%', height: 240, position: 'relative', backgroundColor: bgColor }} onError={() => this.onError()} resizeMode={resizeMode}>
+                <Icon style={{ position: 'absolute', bottom: 15, right: 15, zIndex: 99 }} name='eye' height={24} width={24} fill={white} />
+            </ImageBackground>
+        );
+    }
+}
 
 class ShopItemScreen extends React.Component {
     state = {
@@ -23,6 +43,7 @@ class ShopItemScreen extends React.Component {
         const { route } = this.props;
         const { params } = route;
         const { image, name, type, points, bgColor, size, quantite, description, details } = params;
+        console.log(size);
 
         return (
             <View style={{ flex:1 }}>
@@ -48,9 +69,7 @@ class ShopItemScreen extends React.Component {
                 <ScrollView style={{ backgroundColor: white, paddingHorizontal: 10 }} contentContainerStyle={{ flexGrow: 1 }}>
                     <View style={{ justifyContent: 'space-between', alignItems: 'flex-start', flexDirection: 'row', margin: 5 }}>
                         <View style={{ flex: 1, borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: gray, margin: 5 }}>
-                            <ImageBackground source={image} style={{ width: '100%', height: 240, position: 'relative', backgroundColor: bgColor }}>
-                                <Icon style={{ position: 'absolute', bottom: 15, right: 15, zIndex: 99 }} name='eye' height={24} width={24} fill={white} />
-                            </ImageBackground>
+                            <ShopItem {...{image, bgColor}} />
                         </View>
                         <View style={{ flex: 1, margin: 5 }}>
                             <Text>{type}</Text>
@@ -61,9 +80,17 @@ class ShopItemScreen extends React.Component {
                                 <Text style={{ marginLeft: 3 }}>{`Points`}</Text>
                             </View>
                             <Text style={{ fontWeight: 'bold', marginTop: 4 }}>Taille</Text>
-                            <Select size='small' style={{ flex: 1 }} data={size} placeholder='Taille' selectedOption={tailleSelected} onSelect={selectedOption => this.onSelect('tailleSelected', selectedOption)} />
+                            <Select size='small' style={{ flex: 1 }} data={size} placeholder='Taille' selectedOption={tailleSelected} onSelect={selectedOption => this.onSelect('tailleSelected', selectedOption)}>
+                                {size.map((sze, i) => (
+                                    <SelectItem key={`select-size-${i}`} title={sze.text} />
+                                ))}
+                            </Select>
                             <Text style={{ fontWeight: 'bold', marginTop: 4 }}>Qunatite</Text>
-                            <Select size='small' style={{ flex: 1 }} data={quantite} placeholder='Quantite' selectedOption={quantiteSelected} onSelect={selectedOption => this.onSelect('quantiteSelected', selectedOption)} />
+                            <Select size='small' style={{ flex: 1 }} data={quantite} placeholder='Quantite' selectedOption={quantiteSelected} onSelect={selectedOption => this.onSelect('quantiteSelected', selectedOption)}>
+                                {quantite.map((quantit, i) => (
+                                    <SelectItem key={`select-size-${i}`} title={quantit.text} />
+                                ))}
+                            </Select>
                             <TouchableOpacity style={{backgroundColor: '#0d4ae8', borderRadius: 5, marginTop: 10}}>
                                 <Text style={{color: '#fff', paddingVertical: 5, paddingHorizontal: 10, fontWeight: 'bold', textAlign: 'center'}}>Buy Now!</Text>
                             </TouchableOpacity>

@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import DatabaseLayer from 'expo-sqlite-orm/src/DatabaseLayer'
 import Country from './models/country';
+import Follower from './models/follower';
 import Purpose from './models/purpose';
 import Sport from './models/sport';
 import State from './models/state';
@@ -10,6 +11,7 @@ export const init = async (sports, states, purposes) => {
   let stateValues = [];
   let sportValues = [];
   let purposeValues = [];
+  let followerValues = [];
   let countryValues = {country_id: 66, name: 'France', created_at: new Date().getTime()};
 
   await User.dropTable();
@@ -26,6 +28,9 @@ export const init = async (sports, states, purposes) => {
 
   await Purpose.dropTable();
   await Purpose.createTable();
+
+  // await Follower.dropTable();
+  // await Follower.createTable();
 
   states.map(state => {
     let stateArr = {};
@@ -53,10 +58,18 @@ export const init = async (sports, states, purposes) => {
     purposeArr['created_at'] = new Date().getTime();
     purposeValues.push(purposeArr);
   });
+
+  // followers.map(follower => {
+  //   let followerArr = {};
+  //   followerArr['user_id'] = follower;
+  //   followerArr['created_at'] = new Date().getTime();
+  //   followerValues.push(followerArr);
+  // });
   
   const statesLayer = new DatabaseLayer(async () => SQLite.openDatabase('yaspeez.db'), 'states');
   const sportsLayer = new DatabaseLayer(async () => SQLite.openDatabase('yaspeez.db'), 'sports');
   const purposesLayer = new DatabaseLayer(async () => SQLite.openDatabase('yaspeez.db'), 'purposes');
+  // const followersLayer = new DatabaseLayer(async () => SQLite.openDatabase('yaspeez.db'), 'followers');
 
   const cntry = new Country(countryValues);
   cntry.save();
@@ -64,6 +77,7 @@ export const init = async (sports, states, purposes) => {
   statesLayer.bulkInsertOrReplace(stateValues);
   sportsLayer.bulkInsertOrReplace(sportValues);
   purposesLayer.bulkInsertOrReplace(purposeValues);
+  // followersLayer.bulkInsertOrReplace(followerValues);
 
   return true;
 };

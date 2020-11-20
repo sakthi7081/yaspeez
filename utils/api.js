@@ -64,4 +64,16 @@ export const postRegisterEvent = async data => {
   return await postMethod(`events/eventregister`, data);
 }
 
+export const getAllFollowers = async userId => {
+  return await getMethod(`YUsers/GetFollowed?uid=${userId}`);
+}
+
+export const getAllProducts = async userId => {
+  return await getMethod(`Product/GetMasterProduct?uid=${userId}`);
+}
+
+export const getProductDetail = async productId => {
+  return await getMethod(`Product/GetProductVarient?pid=${productId}`);
+}
+
 export default api;

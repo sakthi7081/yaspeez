@@ -11,13 +11,14 @@ const {Navigator, Screen} = Stack;
 import AppNavigator from './AppNavigator';
 import AuthNavigator from './AuthNavigator';
 import AdScreen from '../screens/AdScreen';
-import { getAllSports, getAllStates, getAllPurposes } from '../utils/api';
+import { getAllSports, getAllStates, getAllPurposes, getAllFollowers } from '../utils/api';
 import { init } from '../database';
 import { Alert } from 'react-native';
 import Sport from '../database/models/sport';
 import State from '../database/models/state';
 import Purpose from '../database/models/purpose';
 import User from '../database/models/user';
+import Follower from '../database/models/follower';
 // import { AppLoading } from 'expo';
 
 // const prevGetStateForAction = Navigator.router.getStateForAction;
@@ -58,6 +59,7 @@ export default class Navigation extends React.Component {
   }
 
   prepareResources = async () => {
+    // await AsyncStorage.clear();
     await this.performAPICalls();
     let users = await User.query();
     this.setState({ appIsReady: true, initScreen: users && users.length > 0 ? 'App' : 'Ad' }, async () => {
@@ -67,10 +69,28 @@ export default class Navigation extends React.Component {
 
   performAPICalls = async () => {
     const tablesCreated = await AsyncStorage.getItem('@tablesCreated');
+    const queryOptions = {
+      limit: 1,
+      order: 'id DESC'
+    };
+
+    if(tablesCreated === null)
+      await Follower.createTable();
+
+    let followers = tablesCreated === null ? [] : await Follower.query();
     let sports = tablesCreated === null ? [] : await Sport.query();
     let states = tablesCreated === null ? [] : await State.query();
     let purposes = tablesCreated === null ? [] : await Purpose.query();
+    // console.log(sports, states, purposes, 'users');
     if(sports && sports.length > 0 && states && states.length > 0 && purposes && purposes.length > 0){
+      let users = await User.query(queryOptions);
+      if(followers && followers.length > 0) {
+        console.log('followers already added!');
+      } else if(users && users.length > 0){
+        const {user_id} = users[0];
+        followers = await getAllFollowers(user_id).then(d => this.success(d)).catch(e => this.failure(e));
+        console.log(followers, 'followers');
+      }
       console.log('app already initialised!');
     } else {
       sports = await getAllSports().then(d => this.success(d)).catch(e => this.failure(e));
