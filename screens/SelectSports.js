@@ -109,7 +109,7 @@ export default class SelectSports extends React.Component {
               onItemSelect={item => this.handleSelected(item, 'infoSelected')}
               onTextChange={txt => this.handleChange(txt)}
               underlineColorAndroid="transparent"
-              placeholder="Select Sports"
+              placeholder="Sélectionnez un sport"
               placeholderTextColor='#222b4573'
               multi={false}
               resetValue={isReset}
@@ -117,7 +117,7 @@ export default class SelectSports extends React.Component {
               value={infoSelected && infoSelected.name}
             />
             <Layout style={styles.selectOption}>
-              <Button disabled={infoSelected === null} style={styles.btn} status={'warning'} accessoryRight={() => this.renderIcon('arrow-circle-right', '#fff')} onPress={() => this.gotoApp()}>Next</Button>
+              <Button disabled={infoSelected === null} style={styles.btn} status={'warning'} accessoryRight={() => this.renderIcon('arrow-circle-right', '#fff')} onPress={() => this.gotoApp()}>Suivant</Button>
             </Layout>
           </Layout>
         </Layout>

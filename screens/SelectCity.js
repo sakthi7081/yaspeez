@@ -50,7 +50,11 @@ export default class SelectCity extends React.Component {
     };
     const usr = new User(userValues);
     usr.save();
-    navigation.navigate('App');
+    // navigation.navigate('App');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'App' }],
+    });
   }
 
   async componentDidMount() {
@@ -106,7 +110,7 @@ export default class SelectCity extends React.Component {
               onItemSelect={item => this.handleSelected(item, 'infoSelected')}
               onTextChange={this.handleChange}
               underlineColorAndroid="transparent"
-              placeholder="Select City"
+              placeholder="Sélectionnez une ville"
               placeholderTextColor='#222b4573'
               multi={false}
               resetValue={false}
@@ -114,7 +118,7 @@ export default class SelectCity extends React.Component {
               value={infoSelected && infoSelected.name}
             />
             <Layout style={styles.selectOption}>
-              <Button disabled={infoSelected === null} style={styles.btn} status={'warning'} accessoryRight={() => this.renderIcon('arrow-circle-right', '#fff')} onPress={() => this.gotoApp()}>Submit</Button>
+              <Button disabled={infoSelected === null} style={styles.btn} status={'warning'} accessoryRight={() => this.renderIcon('arrow-circle-right', '#fff')} onPress={() => this.gotoApp()}>Soumettre</Button>
             </Layout>
           </Layout>
         </Layout>

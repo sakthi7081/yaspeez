@@ -155,8 +155,6 @@ export default class MapScreen extends React.Component {
 
   async componentDidMount() {
     const {_scrollView} = this.refs;
-    const {region} = this.state;
-    const {navigation} = this.props;
     const collection = await Purpose.query();
     const sportsCollection = await Sport.query();
     const dCollection = collection.map(info => ({...info, icon: this.getIcon(info.id)}));
@@ -172,14 +170,6 @@ export default class MapScreen extends React.Component {
         } else {
           this.setState({isSnackVisible: true, snackText: 'Info: No data available!'});
         }
-        navigation.dispatch(state => {
-          const routes = state.routes.filter(r => r.name !== 'Auth');
-          return CommonActions.reset({
-            ...state,
-            routes,
-            index: routes.length - 1,
-          });
-        });
         this.handleAnimate(0);
       })
       .catch(e => Alert.alert('Error', e.message));

@@ -10,9 +10,15 @@ export default class OtpScreen extends React.Component {
     const {navigation, route} = this.props;
     const {params} = route;
     const {user, otp} = params;
-    if(code === otp)
-      navigation.navigate('OtherRegister', {user});
-    else
+    if(code === otp) {
+      navigation.reset({
+        index: 0,
+        routes: [{
+          name: 'OtherRegister',
+          params: {user}
+        }]
+      });
+    } else
       Alert.alert('Error', 'Pl enter the correct OTP!');
   }
 

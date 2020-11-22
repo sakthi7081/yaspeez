@@ -61,7 +61,7 @@ export default class AccountEdit extends React.Component {
   renderFooter = () => (
     <View style={[styles.formContainer, {paddingBottom: 15, paddingTop: 5}]}>
       <TouchableOpacity style={styles.submitBtn} onPress={this.submitForm}>
-        <Text style={styles.submitTxt}>Submit</Text>
+        <Text style={styles.submitTxt}>Soumettre</Text>
       </TouchableOpacity>
     </View>
   );

@@ -18,7 +18,7 @@ export default class AdScreen extends React.Component {
 
   handlePress = async () => {
     const {navigation} = this.props;
-    navigation.navigate('Auth');
+    navigation.reset({index: 0, routes: [{name: 'Auth'}]});
   }
 
   onScroll = (stage, bgColor) => this.setState({stage, bgColor});
@@ -30,7 +30,7 @@ export default class AdScreen extends React.Component {
       <Layout style={styles.container}>
         <Layout style={styles.floatingPanel}>
           <Button onPress={this.handlePress} appearance={'outline'} size={'tiny'} status={'primary'}>
-              {stage < 3 ? 'Passer' : 'Finish'}
+              {stage < 3 ? 'Passer' : 'Allons-y'}
           </Button>
         </Layout>
         <Swiper onIndexChanged={(index) => this.onScroll(index, '#0d4ae8')} showsButtons={false} loop={false}>

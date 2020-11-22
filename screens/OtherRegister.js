@@ -35,7 +35,11 @@ export default class OtherRegisterScreen extends React.Component {
 
   gotoApp = () => {
     const {navigation} = this.props;
-    navigation.navigate('App');
+    // navigation.navigate('App');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'App' }],
+    });
   }
 
   renderOptions = (item, index) => (

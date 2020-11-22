@@ -76,9 +76,15 @@ export default class AuthScreen extends React.Component {
               const {value} = data;
               const {otp, userid} = value;
               console.log(otp, '__DAT');
-              navigation.navigate('Otp', {
-                user: {email, origin, id: userid},
-                otp
+              navigation.reset({
+                index: 0,
+                routes: [{ 
+                  name: 'Otp',
+                  params: {
+                    user: {email, origin, id: userid},
+                    otp 
+                  }
+                }]
               });
             })
             .catch(e => {
@@ -110,7 +116,7 @@ export default class AuthScreen extends React.Component {
           </Layout>
           {!isLoading && (<Layout style={styles.bottomLayout}>
             <Input accessoryLeft={() => this.renderIcon('#aaa', 'at')} style={styles.input} value={email} type={'email'} placeholder={'E-mail'} onChangeText={this.handleChange} />
-            <Button style={[styles.socialBtn]} status={'warning'} accessoryRight={() => this.renderIcon('#fff', 'arrow-circle-right')} onPress={() => this.gotoOtpScreen()}>ME CONNECTER</Button>
+            <Button style={[styles.socialBtn]} status={'warning'} accessoryRight={() => this.renderIcon('#fff', 'arrow-circle-right')} onPress={() => this.gotoOtpScreen()}>S'INSCRIRE</Button>
             <Text style={styles.ouText}>Ou</Text>
             <Button style={styles.socialBtn} status={'danger'} accessoryLeft={() => this.renderIcon('#fff', 'google')} onPress={this.googleSignUp}>
               CONNEXION AVEC GOOGLE

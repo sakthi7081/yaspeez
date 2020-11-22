@@ -11,6 +11,11 @@ import User from '../database/models/user';
 import { getProfile } from '../utils/api';
 import SampleVideo from '../assets/images/account/sample-video.mp4'
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-community/async-storage';
+import Country from '../database/models/country';
+import State from '../database/models/state';
+import Follower from '../database/models/follower';
+import Purpose from '../database/models/purpose';
 
 const {width, height} = Dimensions.get('window');
 const CARD_WIDTH = width - 100;
@@ -168,6 +173,17 @@ export default class AccountScreen extends React.Component {
     });
   }
 
+  logout = async () => {
+    await User.dropTable();
+    await Country.dropTable();
+    await State.dropTable();
+    await Follower.dropTable();
+    await Purpose.dropTable();
+    await AsyncStorage.clear();
+    const {navigation} = this.props;
+    navigation.reset({index: 0, routes: [{name: 'Auth'}]});
+  }
+
   async componentDidMount() {
     await this.reloop();
   }
@@ -216,7 +232,7 @@ export default class AccountScreen extends React.Component {
                 </View>
                 <Icon name="chevron-right" height={24} width={24} fill="#00000080" />
               </TouchableOpacity>
-              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}}>
+              <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee'}} onPress={() => this.logout()}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
                   <Icon name="log-out-outline" height={20} width={20} fill="#00000080" />
                   <Text style={{marginLeft: 5, fontSize: 18, fontWeight: 'bold', color: '#00000080'}}>Logout</Text>

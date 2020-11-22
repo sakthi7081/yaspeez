@@ -73,7 +73,7 @@ export default class SelectPurpose extends React.Component {
           <Image source={require('../assets/splash.png')} resizeMode={'contain'} style={styles.logo} />
         </Layout>
         <Layout style={styles.bottomLayout}>
-          <Text style={{padding: 10, fontSize: 18, fontWeight: 'bold', textAlign: 'center'}}>Choisissez un objectif</Text>
+          <Text style={{padding: 10, fontSize: 18, fontWeight: 'bold', textAlign: 'center'}}>Choisissez un Partenaire</Text>
           <Divider />
           <Layout style={styles.selects}>
             <SearchableDropdown
@@ -86,7 +86,7 @@ export default class SelectPurpose extends React.Component {
               onItemSelect={item => this.handleSelected(item, 'infoSelected')}
               onTextChange={this.handleChange}
               underlineColorAndroid="transparent"
-              placeholder="Select Purpose"
+              placeholder="Sélectionnez un partenaire"
               placeholderTextColor='#222b4573'
               multi={false}
               resetValue={false}
@@ -94,7 +94,7 @@ export default class SelectPurpose extends React.Component {
               value={infoSelected && infoSelected.name}
             />
             <Layout style={styles.selectOption}>
-              <Button disabled={infoSelected === null} style={styles.btn} status={'warning'} accessoryRight={() => this.renderIcon('arrow-circle-right', '#fff')} onPress={() => this.gotoApp()}>Next</Button>
+              <Button disabled={infoSelected === null} style={styles.btn} status={'warning'} accessoryRight={() => this.renderIcon('arrow-circle-right', '#fff')} onPress={() => this.gotoApp()}>Suivant</Button>
             </Layout>
           </Layout>
         </Layout>
