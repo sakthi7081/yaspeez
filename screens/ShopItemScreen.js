@@ -1,7 +1,11 @@
 import React from 'react';
-import { View, ImageBackground, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ImageBackground, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Text, Icon, Select, SelectItem } from '@ui-kitten/components';
 import { noImgUrl } from '../utils/data';
+import { addOrUpdateCart } from '../utils/api';
+import Cart from '../database/models/cart';
+import User from '../database/models/user';
+import { types } from 'expo-sqlite-orm';
 
 const gold = '#F9A602';
 const gray = '#eee';
@@ -29,21 +33,83 @@ class ShopItem extends React.Component {
 class ShopItemScreen extends React.Component {
     state = {
         tailleSelected: null,
-        quantiteSelected: null
+        quantiteSelected: null,
+        cartItemsCount: 0
     }
 
     goBack = () => this.props.navigation.goBack();
 
-    goToCartScreen = () => this.props.navigation.navigate('Cart');
+    goToCartScreen = () => {
+        const {cartItemsCount} = this.state;
+        if(cartItemsCount)
+            this.props.navigation.navigate('Cart');
+        else
+            Alert.alert('Cart', 'No cart items available!');
+    }
 
     onSelect = (selected, selectedOption) => { this.setState({ [selected]: selectedOption }); };
 
+    addToCart = async (data, isBuyNow) => {
+        const {navigation} = this.props;
+        const queryOptions = {
+            limit: 1,
+            order: 'id DESC'
+        };
+        let users = await User.query(queryOptions);
+        const {user_id} = users[0];
+        const {tailleSelected, quantiteSelected} = this.state;
+        if(!quantiteSelected || !tailleSelected){
+            Alert.alert('Required', 'Please select size & quantity!');
+            return false;
+        }
+        const {id, bgColor, image, name, points, price, quantite, size, type, variant_id, vat} = data;
+        const sizeSelected = size[tailleSelected.row].text;
+        const quantitySelected = quantite[quantiteSelected.row].text;
+        
+        const dataItems = {
+            "ID":"0",
+            "YUSER_ID": user_id.toString(),
+            "SPRODUCT_ID": id.toString(),
+            "SPRODUCTVARIENT_ID": variant_id.toString(),
+            "QTY": quantitySelected.toString()
+        };
+        await addOrUpdateCart(dataItems)
+                        .then(res => {
+                            if(res && res.code === "200") {
+                                let cartItem = {
+                                    bgColor, image, points, price, vat, variant_id, 
+                                    product_id: id,
+                                    cart_id: 0,
+                                    product_name: name,
+                                    brand: type,
+                                    quantity: quantitySelected,
+                                    size: sizeSelected
+                                };
+                                let cart = new Cart(cartItem);
+                                cart.save();
+                                if(isBuyNow)
+                                    navigation.navigate('Cart');
+                            }
+                        })
+                        .catch(e => Alert.alert('Error', 'Some error occurred!'));
+        
+    }
+
+    async componentDidMount() {
+        const cart = await Cart.query();
+        this.setState({cartItemsCount: cart.length});
+    }
+
+    async componentDidUpdate() {
+        const cart = await Cart.query();
+        this.setState({cartItemsCount: cart.length});
+    }
+
     render() {
-        const { tailleSelected, quantiteSelected } = this.state;
+        const { tailleSelected, quantiteSelected, cartItemsCount } = this.state;
         const { route } = this.props;
         const { params } = route;
         const { image, name, type, points, bgColor, size, quantite, description, details } = params;
-        console.log(size);
 
         return (
             <View style={{ flex:1 }}>
@@ -57,7 +123,7 @@ class ShopItemScreen extends React.Component {
                   <TouchableOpacity style={{paddingVertical: 20, paddingHorizontal: 20}} onPress={this.goToCartScreen}>
                     <Icon name="shopping-cart" height={24} width={24} fill={white} />
                     <View style={{backgroundColor: 'red', width: 16, height: 15, borderRadius: 10, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 10, top: 15}}>
-                        <Text style={{fontWeight: 'bold', color: white, fontSize: 10}}>4</Text>
+                        <Text style={{fontWeight: 'bold', color: white, fontSize: 10}}>{cartItemsCount}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -80,21 +146,21 @@ class ShopItemScreen extends React.Component {
                                 <Text style={{ marginLeft: 3 }}>{`Points`}</Text>
                             </View>
                             <Text style={{ fontWeight: 'bold', marginTop: 4 }}>Taille</Text>
-                            <Select size='small' style={{ flex: 1 }} data={size} placeholder='Taille' selectedOption={tailleSelected} onSelect={selectedOption => this.onSelect('tailleSelected', selectedOption)}>
+                            <Select size='small' style={{ flex: 1 }} data={size} placeholder='Taille' value={tailleSelected ? size[tailleSelected.row].text : ''} onSelect={selectedOption => this.onSelect('tailleSelected', selectedOption)}>
                                 {size.map((sze, i) => (
                                     <SelectItem key={`select-size-${i}`} title={sze.text} />
                                 ))}
                             </Select>
                             <Text style={{ fontWeight: 'bold', marginTop: 4 }}>Qunatite</Text>
-                            <Select size='small' style={{ flex: 1 }} data={quantite} placeholder='Quantite' selectedOption={quantiteSelected} onSelect={selectedOption => this.onSelect('quantiteSelected', selectedOption)}>
+                            <Select size='small' style={{ flex: 1 }} data={quantite} placeholder='Quantite' value={quantiteSelected ? quantite[quantiteSelected.row].text : ''} onSelect={selectedOption => this.onSelect('quantiteSelected', selectedOption)}>
                                 {quantite.map((quantit, i) => (
                                     <SelectItem key={`select-size-${i}`} title={quantit.text} />
                                 ))}
                             </Select>
-                            <TouchableOpacity style={{backgroundColor: '#0d4ae8', borderRadius: 5, marginTop: 10}}>
+                            <TouchableOpacity style={{backgroundColor: '#0d4ae8', borderRadius: 5, marginTop: 10}} onPress={() => this.addToCart(params, 1)}>
                                 <Text style={{color: '#fff', paddingVertical: 5, paddingHorizontal: 10, fontWeight: 'bold', textAlign: 'center'}}>Buy Now!</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={{backgroundColor: gold, borderRadius: 5, marginTop: 10}}>
+                            <TouchableOpacity style={{backgroundColor: gold, borderRadius: 5, marginTop: 10}} onPress={() => this.addToCart(params, 0)}>
                                 <Text style={{paddingVertical: 5, paddingHorizontal: 10, fontWeight: 'bold', textAlign: 'center'}}>Add to Cart</Text>
                             </TouchableOpacity>
                         </View>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ImageBackground ,Dimensions } from 'react-native';
+import { View, ImageBackground ,Dimensions, Alert } from 'react-native';
 import { Text, Icon } from '@ui-kitten/components';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -22,6 +22,7 @@ const black = '#000';
 import { getAllProducts, getProductDetail } from '../utils/api';
 import User from '../database/models/user';
 import { noImgUrl } from '../utils/data';
+import Cart from '../database/models/cart';
  
 const { width } = Dimensions.get('window');
 const itemWidth = Math.round((width / 2));
@@ -57,19 +58,25 @@ class ShopItem extends React.Component{
 }
 
 class ShopScreen extends React.Component {
-    state = {productItems: []}
+    state = {productItems: [], cartItemsCount: 0}
 
-    goToCartScreen = () => this.props.navigation.navigate('Cart');
+    goToCartScreen = () => {
+        const {cartItemsCount} = this.state;
+        if(cartItemsCount > 0)
+            this.props.navigation.navigate('Cart');
+        else
+            Alert.alert('Cart', 'No cart items available!');
+    }
 
     gotoShopItem = async item => {
         const { navigation } = this.props;
         // const { productItems } = this.state;
-        const { image, type, name, points, bgColor, size } = item;
+        const { image, type, name, points, bgColor, size, price, id, variant_id, vat } = item;
         // let productDetail = await getProductDetail(id).then(d => this.success(d)).catch(e => this.failure(e));
         // const {Size} = productDetail;
 
         navigation.navigate('ShopItem', {
-            image, type, name, points, bgColor,
+            image, type, name, points, bgColor, price, id, variant_id, vat, 
             size: [{ text: size }], //, { text: 'M' }, { text: 'L' }, { text: 'XL' }, { text: 'XXL' }],
             quantite: [{ text: '1' }, { text: '2' }, { text: '3' }, { text: '4' }, { text: '5' }],
             description: 'Occaecat laboris dolore irure ad. Ullamco et mollit id eu sint reprehenderit quis laboris velit duis magna mollit. Fugiat do adipisicing laboris elit commodo qui quis. Laboris consectetur proident esse magna amet ad. Cillum elit proident sunt ullamco sint duis sunt ea sunt sit laborum velit. Officia sint cupidatat culpa excepteur dolor. Quis excepteur esse do Lorem.',
@@ -115,6 +122,7 @@ class ShopScreen extends React.Component {
             order: 'id DESC'
         };
         let users = await User.query(queryOptions);
+        const cart = await Cart.query();
         const {user_id} = users[0];
         let products = await getAllProducts(user_id).then(d => this.success(d)).catch(e => this.failure(e));
         // console.log(products, 'products')
@@ -122,6 +130,8 @@ class ShopScreen extends React.Component {
         products.map(product => {
             let productItem = {
                 id: product.sProduct_ID,
+                variant_id: product.sProductVarient_ID,
+                vat: product.VATPercentage,
                 image: product.Photo,
                 type: product.Category,
                 name: product.ProductName,
@@ -133,11 +143,16 @@ class ShopScreen extends React.Component {
             };
             productItems.push(productItem);
         });
-        this.setState({productItems});
+        this.setState({productItems, cartItemsCount: cart.length});
+    }
+
+    async componentDidUpdate() {
+        const cart = await Cart.query();
+        this.setState({cartItemsCount: cart.length});
     }
     
     render() {
-        const {productItems} = this.state;
+        const {productItems, cartItemsCount} = this.state;
 
         if(!productItems)
             return null;
@@ -157,7 +172,7 @@ class ShopScreen extends React.Component {
                   <TouchableOpacity style={{paddingVertical: 20, paddingHorizontal: 20}} onPress={this.goToCartScreen}>
                     <Icon name="shopping-cart" height={24} width={24} fill={white} />
                     <View style={{backgroundColor: 'red', width: 16, height: 15, borderRadius: 10, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 10, top: 15}}>
-                        <Text style={{fontWeight: 'bold', color: white, fontSize: 10}}>4</Text>
+                        <Text style={{fontWeight: 'bold', color: white, fontSize: 10}}>{cartItemsCount}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>

@@ -76,4 +76,17 @@ export const getProductDetail = async productId => {
   return await getMethod(`Product/GetProductVarient?pid=${productId}`);
 }
 
+export const addOrUpdateCart = async data => {
+  return await postMethod(`Product/AddCart`, data);
+}
+
+export const deleteCart = async data => {
+  const {cartId, userId} = data;
+  return await getMethod(`product/DeleteCart?cid=${cartId}&uid=${userId}`)
+}
+
+export const getCart = async userId => {
+  return await getMethod(`product/GetCart?uid=${userId}`);
+}
+
 export default api;

@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import DatabaseLayer from 'expo-sqlite-orm/src/DatabaseLayer'
+import Cart from './models/cart';
 import Country from './models/country';
 import Follower from './models/follower';
 import Purpose from './models/purpose';
@@ -11,7 +12,7 @@ export const init = async (sports, states, purposes) => {
   let stateValues = [];
   let sportValues = [];
   let purposeValues = [];
-  let followerValues = [];
+  // let followerValues = [];
   let countryValues = {country_id: 66, name: 'France', created_at: new Date().getTime()};
 
   await User.dropTable();
@@ -29,8 +30,11 @@ export const init = async (sports, states, purposes) => {
   await Purpose.dropTable();
   await Purpose.createTable();
 
-  // await Follower.dropTable();
-  // await Follower.createTable();
+  await Follower.dropTable();
+  await Follower.createTable();
+  
+  await Cart.dropTable();
+  await Cart.createTable();
 
   states.map(state => {
     let stateArr = {};
