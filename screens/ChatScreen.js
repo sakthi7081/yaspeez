@@ -2,8 +2,53 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import ChatItem from '../components/ChatItem';
 import { ScrollView } from 'react-native-gesture-handler';
+import { baseURL } from '../utils/api';
+import User from '../database/models/user';
+import * as signalR from "@aspnet/signalr";
+import * as Notifications from 'expo-notifications';
 
 class ChatScreen extends React.Component {
+    async componentDidMount() {
+        const queryOptions = {
+            limit: 1,
+            order: 'id DESC'
+        };
+        let users = await User.query(queryOptions);
+        const {user_id} = users[0];
+        console.log(user_id, 'user_id');
+        const hubUrl = `${baseURL}chatHub`;
+        // const hubUrl = `http://51.210.150.124:8088/chatHub`;
+        const connectionHub = new signalR.HubConnectionBuilder()
+            .withUrl(hubUrl)
+            .configureLogging(signalR.LogLevel.Debug)
+            .build();
+
+        connectionHub.on("GetMessage", (messages) => {
+            console.log(messages, "messages");
+        });
+
+        connectionHub.on("GetChatList", (chats) => {
+            console.log(chats, "chats");
+        });
+
+        connectionHub.on("GetContactList", (contacts) => {
+            console.log(contacts, "contacts");
+        });
+
+        await connectionHub.start().catch((err) => console.log(err));
+        let groupId = 1;
+        let uid = 45;
+        // await connectionHub.invoke("GetMessage", groupId);
+        // await connectionHub.invoke("GetChatList", uid);
+        await connectionHub.invoke("GetContactList", uid);
+        this.setState({connection: connectionHub});
+        
+        // Notifications.presentNotificationAsync({
+        //     title: 'Look at that notification',
+        //     body: "I'm so proud of myself!",
+        // });
+    }
+
     render() {
         const { navigation } = this.props;
         const users = [

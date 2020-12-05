@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+export const baseURL = 'http://51.210.150.124:8010/';
+
 const api = axios.create({
-  baseURL: 'http://51.210.150.124:8010/'
+  baseURL
 });
 
 const getMethod = async (url) => {

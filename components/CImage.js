@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Image} from 'react-native';
+import {Image, ImageBackground} from 'react-native';
 
 export default class CImage extends Component {
   state = {imgErr: 0};
@@ -10,7 +10,7 @@ export default class CImage extends Component {
     const {style, source, noImgUrl, resizeMode} = this.props;
     const {imgErr} = this.state;
     return (
-      <Image
+      <ImageBackground
         style={[style, imgErr ? {backgroundColor: '#ccc'} : {}]}
         source={!imgErr && source.uri !== '' ? source : noImgUrl}
         onError={this.sourceError}

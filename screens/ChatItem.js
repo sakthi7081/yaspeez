@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, KeyboardAvoidingView, Platform, Animated, Dimensions, Keyboard, UIManager, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { Button, Input, Icon, Text, Avatar } from '@ui-kitten/components';
-// import signalr from 'react-native-signalr';
+import * as signalR from "@aspnet/signalr";
 import MessageItem from '../components/MessageItem';
+import { baseURL } from '../utils/api';
 
 export const blue = '#0d4ae8';
 
@@ -48,7 +49,55 @@ export default class ChatItem extends React.Component {
 
   goBack = () => this.props.navigation.goBack();
 
-  componentWillMount() {
+  async componentWillMount() {
+    const hubUrl = `${baseURL}chatHub`;
+
+    const connectionHub = new signalR.HubConnectionBuilder()
+      .withUrl(hubUrl)
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    // connectionHub.on("onDelete", (msgId) => {
+    //   let messages = this.state.messages.map((item) =>
+    //     item.msgId !== msgId ? item : { ...item, isActive: false }
+    //   );
+    //   this.setState({ messages });
+    // });
+
+    // connectionHub.on("AddToGroup", (receivedMessage) => {
+    //   console.log(receivedMessage);
+    // });
+
+    // connectionHub.on("RemoveFromGroup", (receivedMessage) => {
+    //   console.log(receivedMessage);
+    // });
+
+    // connectionHub.on("SendMessage", (receivedMessage) => {
+    //   let messages = this.state.messages;
+    //   messages.push(receivedMessage);
+    //   this.setState({ messages });
+    // });
+
+    // connectionHub.on("GetMessage", (receivedMessage) => {
+    //   let messages = receivedMessage;
+    //   this.setState({ messages });
+    // });
+
+    // connectionHub.on("GetChatList", (receivedMessage) => {
+    //   let messages = receivedMessage;
+    //   this.setState({ messages });
+    // });
+
+    // connectionHub.on("GetContactList", (receivedMessage) => {
+    //   let messages = receivedMessage;
+    //   this.setState({ messages });
+    // });
+
+    // await connectionHub.start().catch((err) => console.log());
+    // this.setState({ connection: connectionHub });
+    // await connectionHub.invoke("AddToGroup", user);
+    // await connectionHub.invoke("GetMessage", parseInt(user));
+
     // const connection = signalr.hubConnection('http://51.210.150.124:8010/chatHub', {skipNegotiation: true});
     // connection.logging = true;
     // connection.skipNegotiation = true;

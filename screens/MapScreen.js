@@ -238,7 +238,7 @@ export default class MapScreen extends React.Component {
           <ScrollView horizontal scrollEventThrottle={1} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.endPadding} snapToInterval={CARD_WIDTH + 20} snapToAlignment={'center'} ref={'_scrollView'} onScroll={this.handleScroll} >
             {markers.map(({image, name, description, id, distance, metric, rating, address}, index) => (
               <TouchableOpacity key={`card-item-${index}-${id}`} style={styles.card} onPress={() => this.gotoMapItem({image, name, description, id, distance, metric, rating, address})}>
-                <CImage source={{uri: `${image}`}} noImgUrl={{uri: noImgUrl}} resizeMode='contain' style={styles.cardImage} />
+                <CImage source={{uri: `${image}`}} noImgUrl={{uri: noImgUrl}} resizeMode='cover' style={styles.cardImage} />
                 <Layout style={[styles.cardItem, styles.transBg]}>
                   <Text style={styles.cardTitle} category='h6' numberOfLines={1}>{name}</Text>
                   <Text style={styles.description} numberOfLines={2} category='p2'>{description}</Text>

@@ -9,7 +9,7 @@ const addresses = [
 ]
 
 export default class CheckoutScreen extends React.Component {
-  state = {selectedIndex: 0, addressSelectedIndex: 0};
+  state = {selectedIndex: 1, addressSelectedIndex: 0};
 
   goBack = () => this.props.navigation.goBack();
 
@@ -61,7 +61,7 @@ export default class CheckoutScreen extends React.Component {
             <Text style={{fontSize: 18, fontWeight: 'bold'}}>Payment Method</Text>
             <View>
               <RadioGroup selectedIndex={selectedIndex} onChange={this.changeSelectedIndex}>
-                <TouchableOpacity onPress={() => this.changeSelectedIndex(0)} style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10}}>
+                {/* <TouchableOpacity onPress={() => this.changeSelectedIndex(0)} style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10}}>
                   <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
                     <View style={{paddingVertical: 5, paddingHorizontal: 8, borderWidth: 1, borderColor: '#ccc', borderRadius: 10}}>
                       <Image source={require('../assets/images/checkout/mastercard.png')} style={{height: 28, width: 28, backgroundColor: '#eee'}} />
@@ -71,7 +71,7 @@ export default class CheckoutScreen extends React.Component {
                   <View>
                     <Radio checked={selectedIndex === 0} />
                   </View>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <TouchableOpacity onPress={() => this.changeSelectedIndex(1)} style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10}}>
                   <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
                     <View style={{paddingVertical: 5, paddingHorizontal: 8, borderWidth: 1, borderColor: '#ccc', borderRadius: 10}}>
@@ -83,7 +83,7 @@ export default class CheckoutScreen extends React.Component {
                     <Radio checked={selectedIndex === 1} />
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.changeSelectedIndex(2)} style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10}}>
+                {/* <TouchableOpacity onPress={() => this.changeSelectedIndex(2)} style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10}}>
                   <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
                     <View style={{paddingVertical: 5, paddingHorizontal: 8, borderWidth: 1, borderColor: '#ccc', borderRadius: 10}}>
                       <Image source={require('../assets/images/checkout/google.png')} style={{height: 28, width: 28, backgroundColor: '#eee'}} />
@@ -104,7 +104,7 @@ export default class CheckoutScreen extends React.Component {
                   <View>
                     <Radio checked={selectedIndex === 3} />
                   </View>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </RadioGroup>
             </View>
           </View>
